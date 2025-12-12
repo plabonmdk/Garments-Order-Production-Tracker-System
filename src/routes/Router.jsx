@@ -4,6 +4,9 @@ import Home from "../home/Home";
 import AllProducts from "../pages/all-products/AllProducts";
 import About from "../pages/about/About";
 import Contact from "../pages/contoct/Contact";
+import AuthLayout from "../layouts/AuthLayout";
+import Login from "../pages/Auth/login/Login";
+import Register from "../pages/Auth/register/Register";
 
 
 export const router = createBrowserRouter([
@@ -29,4 +32,18 @@ export const router = createBrowserRouter([
         }
     ]
   },
+  {
+    path: '/',
+    Component: AuthLayout,
+    children: [
+      {
+        path: 'login',
+        Component: Login
+      },
+      {
+        path: 'register',
+        Component: Register
+      }
+    ]
+  }
 ]);
