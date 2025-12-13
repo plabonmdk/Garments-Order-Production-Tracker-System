@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { Link, useLocation, useNavigate } from "react-router";
 import SocialLogin from "../SocialLogin/SocialLogin";
 import useAuth from "../../../Hooks/useAuth";
-import bgImg from "../../../assets/login bg.avif"; 
+import bgImg from "../../../assets/login bg.avif";
 
 const Login = () => {
   const {
@@ -27,8 +27,6 @@ const Login = () => {
   return (
     <div className=" flex items-center justify-center">
       <div className="card bg-base-100 w-full max-w-sm shadow-2xl overflow-hidden">
-
-        
         <div
           className="h-40 flex flex-col items-center justify-center text-white text-center bg-cover bg-center"
           style={{ backgroundImage: `url(${bgImg})` }}
@@ -47,9 +45,7 @@ const Login = () => {
               className="input"
               placeholder="Email"
             />
-            {errors.email && (
-              <p className="text-red-500">Email is required</p>
-            )}
+            {errors.email && <p className="text-red-500">Email is required</p>}
 
             <label className="label">Password</label>
             <input
@@ -79,7 +75,12 @@ const Login = () => {
             )}
 
             <div>
-              <a className="link link-hover">Forgot password?</a>
+              <Link
+                to="/forgot-password"
+                className="link link-hover text-blue-500"
+              >
+                Forgot password?
+              </Link>
             </div>
 
             <button className="btn btn-neutral mt-4">Login</button>

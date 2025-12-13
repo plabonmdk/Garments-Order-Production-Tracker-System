@@ -2,9 +2,10 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { Link, useLocation, useNavigate } from "react-router";
 import axios from "axios";
+import Swal from "sweetalert2";
 import useAuth from "../../../Hooks/useAuth";
-import SocialLogin from "../SocialLogin/SocialLogin"; 
-import background from '../../../assets/login bg.avif'
+import SocialLogin from "../SocialLogin/SocialLogin";
+import background from "../../../assets/login bg.avif";
 
 const Register = () => {
   const {
@@ -14,63 +15,104 @@ const Register = () => {
   } = useForm();
 
   const { registerUser, updateUserProfile } = useAuth();
-  const location = useLocation();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const handleRegistration = (data) => {
-    console.log("Registration data:", data.photo[0]);
-    const profileImg = data.photo[0];
+  const handleRegistration = async (data) => {
+    try {
+    
+      const result = await registerUser(data.email, data.password);
+      console.log("User created:", result.user);
 
-    registerUser(data.email, data.password)
-      .then((result) => {
-        console.log(result.user);
+      
+      const formData = new FormData();
+      formData.append("image", data.photo[0]);
 
-        const formData = new FormData();
-        formData.append("image", profileImg);
+      const imageAPI = `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_IMAGE_HOST}`;
+      const imgRes = await axios.post(imageAPI, formData);
 
-        const image_API_URL = `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_IMAGE_HOST}`;
+     
+      await updateUserProfile({
+        displayName: data.name,
+        photoURL: imgRes.data.data.url,
+      });
 
-        axios
-          .post(image_API_URL, formData)
-          .then((res) => {
-            console.log("After image upload:", res.data);
+      Swal.fire({
+        icon: "success",
+        title: "Registration Successful!",
+        text: "Please login to continue",
+        timer: 2000,
+        showConfirmButton: false,
+      });
 
-            const userProfile = {
-              displayName: data.name,
-              photoURL: res.data.data.url,
-            };
+      const currentUser = result.user;
+    console.log("Updated User Profile:", {
+      displayName: currentUser.displayName,
+      photoURL: currentUser.photoURL,
+      email: currentUser.email,
+      uid: currentUser.uid,
+    });
 
-            updateUserProfile(userProfile)
-              .then(() => {
-                console.log("User profile updated successfully");
-                navigate(location.state?.from || "/");
-              })
-              .catch((error) => console.log(error));
-          })
-          .catch((error) => console.log(error));
-      })
-      .catch((error) => console.log(error));
+    Swal.fire({
+      icon: "success",
+      title: "Registration Successful!",
+      text: "Please login to continue",
+      timer: 2000,
+      showConfirmButton: false,
+    });
+
+      // Redirect after alert
+      setTimeout(() => {
+        navigate("/login");
+      }, 2000);
+
+    } catch (error) {
+    
+      if (error.code === "auth/email-already-in-use") {
+        Swal.fire({
+          icon: "error",
+          title: "Already Registered",
+          text: "You already have an account with this email. Please login.",
+        }).then(() => {
+          navigate("/login");
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Something went wrong",
+          text: error.message,
+        });
+      }
+    }
   };
 
   return (
-    <div className="card bg-base-100 w-full mx-auto max-w-sm shrink-0 shadow-2xl">
-  {/* Header with background */}
-  <div className="p-6 text-center rounded-t-lg" style={{ backgroundImage:  `url(${background})` }}>
-    <h3 className="text-3xl font-bold text-white">Welcome to Premium Garments</h3>
-    <p className="text-xl text-white mt-2">Please Register</p>
-  </div>
+    <div className="card bg-base-100 w-full mx-auto max-w-sm shadow-2xl">
+
+      {/* Header */}
+      <div
+        className="p-6 text-center rounded-t-lg bg-cover bg-center"
+        style={{ backgroundImage: `url(${background})` }}
+      >
+        <h3 className="text-3xl font-bold text-white">
+          Welcome to Premium Garments
+        </h3>
+        <p className="text-xl text-white mt-2">Please Register</p>
+      </div>
+
       <div className="card-body">
         <form onSubmit={handleSubmit(handleRegistration)}>
           <fieldset className="fieldset">
+
             {/* Photo */}
             <label className="label">Photo</label>
             <input
               type="file"
               {...register("photo", { required: true })}
-              className="file-input"
+              className="file-input file-input-bordered w-full"
             />
             {errors.photo && (
-              <p className="text-red-500">Photo is required.</p>
+              <p className="text-red-500 text-sm">Photo is required</p>
             )}
 
             {/* Name */}
@@ -78,11 +120,11 @@ const Register = () => {
             <input
               type="text"
               {...register("name", { required: true })}
-              className="input"
+              className="input input-bordered w-full"
               placeholder="Enter your name"
             />
             {errors.name && (
-              <p className="text-red-500">Name is required.</p>
+              <p className="text-red-500 text-sm">Name is required</p>
             )}
 
             {/* Email */}
@@ -90,11 +132,11 @@ const Register = () => {
             <input
               type="email"
               {...register("email", { required: true })}
-              className="input"
+              className="input input-bordered w-full"
               placeholder="Enter your email"
             />
             {errors.email && (
-              <p className="text-red-500">Email is required.</p>
+              <p className="text-red-500 text-sm">Email is required</p>
             )}
 
             {/* Password */}
@@ -105,32 +147,32 @@ const Register = () => {
                 required: true,
                 minLength: 6,
                 pattern:
-                  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/,
+                  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{6,}$/,
               })}
-              className="input"
+              className="input input-bordered w-full"
               placeholder="Enter your password"
             />
+
             {errors.password?.type === "required" && (
-              <p className="text-red-600">Password is required</p>
+              <p className="text-red-500 text-sm">Password is required</p>
             )}
             {errors.password?.type === "minLength" && (
-              <p className="text-red-500">
-                Password must be 6 characters or longer
+              <p className="text-red-500 text-sm">
+                Password must be at least 6 characters
               </p>
             )}
             {errors.password?.type === "pattern" && (
-              <p className="text-red-500">
-                Password must have at least one uppercase, one lowercase, one
-                number, and one special character.
+              <p className="text-red-500 text-sm">
+                Must contain uppercase, lowercase, number & special character
               </p>
             )}
 
-           
-
-            <button className="btn btn-neutral mt-4">Register</button>
+            <button className="btn btn-neutral mt-4 w-full">
+              Register
+            </button>
           </fieldset>
 
-          <p className="mt-4">
+          <p className="mt-4 text-center">
             Already have an account?{" "}
             <Link
               to="/login"
