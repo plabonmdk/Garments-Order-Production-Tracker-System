@@ -3,7 +3,8 @@ import { useForm } from "react-hook-form";
 import { Link, useLocation, useNavigate } from "react-router";
 import axios from "axios";
 import useAuth from "../../../Hooks/useAuth";
-import SocialLogin from "../SocialLogin/SocialLogin"; // <-- import your SocialLogin component
+import SocialLogin from "../SocialLogin/SocialLogin"; 
+import background from '../../../assets/login bg.avif'
 
 const Register = () => {
   const {
@@ -53,8 +54,11 @@ const Register = () => {
 
   return (
     <div className="card bg-base-100 w-full mx-auto max-w-sm shrink-0 shadow-2xl">
-      <h3 className="text-3xl text-center">Welcome to Premium Garments</h3>
-      <p className="text-center text-xl my-4">Please Register</p>
+  {/* Header with background */}
+  <div className="p-6 text-center rounded-t-lg" style={{ backgroundImage:  `url(${background})` }}>
+    <h3 className="text-3xl font-bold text-white">Welcome to Premium Garments</h3>
+    <p className="text-xl text-white mt-2">Please Register</p>
+  </div>
       <div className="card-body">
         <form onSubmit={handleSubmit(handleRegistration)}>
           <fieldset className="fieldset">
