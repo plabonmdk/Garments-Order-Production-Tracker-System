@@ -20,20 +20,27 @@ const Register = () => {
 
   const handleRegistration = async (data) => {
     try {
-    
+      // Register user with email & password
       const result = await registerUser(data.email, data.password);
-      console.log("User created:", result.user);
 
-      
+      // Upload image to imgbb
       const formData = new FormData();
       formData.append("image", data.photo[0]);
-
       const imageAPI = `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_IMAGE_HOST}`;
       const imgRes = await axios.post(imageAPI, formData);
 
-     
+      // Update user profile
       await updateUserProfile({
         displayName: data.name,
+        photoURL: imgRes.data.data.url,
+      });
+
+      // Optional: Save role & status to your database
+      await axios.post("/api/users", {
+        name: data.name,
+        email: data.email,
+        role: data.role,
+        status: "pending",
         photoURL: imgRes.data.data.url,
       });
 
@@ -45,37 +52,16 @@ const Register = () => {
         showConfirmButton: false,
       });
 
-      const currentUser = result.user;
-    console.log("Updated User Profile:", {
-      displayName: currentUser.displayName,
-      photoURL: currentUser.photoURL,
-      email: currentUser.email,
-      uid: currentUser.uid,
-    });
-
-    Swal.fire({
-      icon: "success",
-      title: "Registration Successful!",
-      text: "Please login to continue",
-      timer: 2000,
-      showConfirmButton: false,
-    });
-
-      // Redirect after alert
       setTimeout(() => {
         navigate("/login");
       }, 2000);
-
     } catch (error) {
-    
       if (error.code === "auth/email-already-in-use") {
         Swal.fire({
           icon: "error",
           title: "Already Registered",
           text: "You already have an account with this email. Please login.",
-        }).then(() => {
-          navigate("/login");
-        });
+        }).then(() => navigate("/login"));
       } else {
         Swal.fire({
           icon: "error",
@@ -88,7 +74,6 @@ const Register = () => {
 
   return (
     <div className="card bg-base-100 w-full mx-auto max-w-sm shadow-2xl">
-
       {/* Header */}
       <div
         className="p-6 text-center rounded-t-lg bg-cover bg-center"
@@ -103,7 +88,6 @@ const Register = () => {
       <div className="card-body">
         <form onSubmit={handleSubmit(handleRegistration)}>
           <fieldset className="fieldset">
-
             {/* Photo */}
             <label className="label">Photo</label>
             <input
@@ -139,6 +123,20 @@ const Register = () => {
               <p className="text-red-500 text-sm">Email is required</p>
             )}
 
+            {/* Role Dropdown */}
+            <label className="label">Role</label>
+            <select
+              {...register("role", { required: true })}
+              className="select select-bordered w-full"
+            >
+              <option value="">Select Role</option>
+              <option value="buyer">Buyer</option>
+              <option value="manager">Manager</option>
+            </select>
+            {errors.role && (
+              <p className="text-red-500 text-sm">Role is required</p>
+            )}
+
             {/* Password */}
             <label className="label">Password</label>
             <input
@@ -146,13 +144,11 @@ const Register = () => {
               {...register("password", {
                 required: true,
                 minLength: 6,
-                pattern:
-                  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{6,}$/,
+                pattern: /^(?=.*[a-z])(?=.*[A-Z]).{6,}$/,
               })}
               className="input input-bordered w-full"
               placeholder="Enter your password"
             />
-
             {errors.password?.type === "required" && (
               <p className="text-red-500 text-sm">Password is required</p>
             )}
@@ -163,13 +159,12 @@ const Register = () => {
             )}
             {errors.password?.type === "pattern" && (
               <p className="text-red-500 text-sm">
-                Must contain uppercase, lowercase, number & special character
+                Password must contain at least one uppercase and one lowercase
+                letter
               </p>
             )}
 
-            <button className="btn btn-neutral mt-4 w-full">
-              Register
-            </button>
+            <button className="btn btn-neutral mt-4 w-full">Register</button>
           </fieldset>
 
           <p className="mt-4 text-center">
