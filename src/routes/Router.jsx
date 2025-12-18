@@ -12,6 +12,10 @@ import DashboardLayout from "../layouts/dashboardLayout";
 import PrivateRoute from "./PrivateRoute";
 import MyProduct from "../pages/dashboard/MyProduct";
 import SendProduct from "../pages/SendProduct";
+import Payment from "../dashboardLayout/Payment/Payment";
+import PaymentSuccess from "../dashboardLayout/Payment/PaymentSuccess";
+import PaymentCancelled from "../dashboardLayout/Payment/paymentCancelled";
+
 
 export const router = createBrowserRouter([
   {
@@ -60,6 +64,7 @@ export const router = createBrowserRouter([
     ],
   },
   {
+    
     path: "/dashboard",
     element: (
       <PrivateRoute>
@@ -71,6 +76,18 @@ export const router = createBrowserRouter([
         path: "my-products",
         element: <MyProduct />,
       },
+      {
+        path: 'payment/:productId',
+        Component: Payment
+      },
+      {
+        path: 'payment-success',
+        element: <PaymentSuccess></PaymentSuccess>
+      },
+      {
+        path: 'payment-cancelled',
+       element: <PaymentCancelled></PaymentCancelled>
+      }
     ],
   },
 ]);

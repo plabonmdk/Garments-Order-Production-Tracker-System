@@ -1,6 +1,6 @@
 import React from "react";
 import { useForm, useWatch } from "react-hook-form";
-import { useLoaderData } from "react-router";
+import { useLoaderData, useNavigate } from "react-router";
 import Swal from "sweetalert2";
 import useAxiosSecure from "../Hooks/useAxiosSecure";
 import useAuth from "../Hooks/useAuth";
@@ -8,9 +8,10 @@ import useAuth from "../Hooks/useAuth";
 const SendProduct = () => {
   const { register, handleSubmit, control, reset } = useForm();
 
-  const {user} = useAuth()
+  const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
 
+  const navigate = useNavigate()
   const serviceCenters = useLoaderData() || [];
 
   // unique regions
@@ -28,8 +29,7 @@ const SendProduct = () => {
 
   const handleSendParcel = (data) => {
     const isDocument = data.parcelType === "document";
-    const isSameDistrict =
-      data.senderDistrict === data.receiverDistrict;
+    const isSameDistrict = data.senderDistrict === data.receiverDistrict;
     const parcelWeight = parseFloat(data.parcelWeight || 0);
 
     let cost = 0;
@@ -75,8 +75,18 @@ const SendProduct = () => {
           .post("/products", productData)
           .then((res) => {
             console.log("Product saved:", res.data);
-            Swal.fire("Success", "Parcel sent successfully", "success");
-            reset();
+            if (res.data.insertedId) {
+              navigate('/dashboard/my-products')
+              Swal.fire({
+                position:"top-center",
+                icon: 'success',
+                title: "product has created . please pay!",
+                showCancelButton: false,
+                timer: 2500,
+              });
+            }
+            // Swal.fire("Success", "Parcel sent successfully", "success");
+            // reset();
           })
           .catch((err) => {
             console.error(err);
@@ -88,9 +98,7 @@ const SendProduct = () => {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <h1 className="text-4xl font-bold text-center mb-10">
-        Send A Product
-      </h1>
+      <h1 className="text-4xl font-bold text-center mb-10">Send A Product</h1>
 
       <form
         onSubmit={handleSubmit(handleSendParcel)}
@@ -140,22 +148,50 @@ const SendProduct = () => {
           <fieldset className="bg-white p-6 rounded-xl shadow">
             <h3 className="text-xl font-semibold mb-4">Sender Details</h3>
 
-            <input {...register("senderName")} defaultValue={user?.displayName} className="input input-bordered w-full mb-3" placeholder="Name" />
-            <input {...register("senderEmail")} defaultValue={user?.email} className="input input-bordered w-full mb-3" placeholder="Email" />
-            <input {...register("senderAddress")} className="input input-bordered w-full mb-3" placeholder="Address" />
-            <input {...register("senderNumber")} className="input input-bordered w-full mb-3" placeholder="Phone Number" />
+            <input
+              {...register("senderName")}
+              defaultValue={user?.displayName}
+              className="input input-bordered w-full mb-3"
+              placeholder="Name"
+            />
+            <input
+              {...register("senderEmail")}
+              defaultValue={user?.email}
+              className="input input-bordered w-full mb-3"
+              placeholder="Email"
+            />
+            <input
+              {...register("senderAddress")}
+              className="input input-bordered w-full mb-3"
+              placeholder="Address"
+            />
+            <input
+              {...register("senderNumber")}
+              className="input input-bordered w-full mb-3"
+              placeholder="Phone Number"
+            />
 
-            <select {...register("senderRegion")} className="select select-bordered w-full mb-3">
+            <select
+              {...register("senderRegion")}
+              className="select select-bordered w-full mb-3"
+            >
               <option value="">Select Region</option>
               {regions.map((r) => (
-                <option key={r} value={r}>{r}</option>
+                <option key={r} value={r}>
+                  {r}
+                </option>
               ))}
             </select>
 
-            <select {...register("senderDistrict")} className="select select-bordered w-full">
+            <select
+              {...register("senderDistrict")}
+              className="select select-bordered w-full"
+            >
               <option value="">Select District</option>
               {districtsByRegion(senderRegion).map((d) => (
-                <option key={d} value={d}>{d}</option>
+                <option key={d} value={d}>
+                  {d}
+                </option>
               ))}
             </select>
           </fieldset>
@@ -164,25 +200,51 @@ const SendProduct = () => {
           <fieldset className="bg-white p-6 rounded-xl shadow">
             <h3 className="text-xl font-semibold mb-4">Receiver Details</h3>
 
-            <input {...register("receiverName")} className="input input-bordered w-full mb-3" placeholder="Name" />
-            <input {...register("receiverEmail")} className="input input-bordered w-full mb-3" placeholder="Email" />
+            <input
+              {...register("receiverName")}
+              className="input input-bordered w-full mb-3"
+              placeholder="Name"
+            />
+            <input
+              {...register("receiverEmail")}
+              className="input input-bordered w-full mb-3"
+              placeholder="Email"
+            />
 
-            <select {...register("receiverRegion")} className="select select-bordered w-full mb-3">
+            <select
+              {...register("receiverRegion")}
+              className="select select-bordered w-full mb-3"
+            >
               <option value="">Select Region</option>
               {regions.map((r) => (
-                <option key={r} value={r}>{r}</option>
+                <option key={r} value={r}>
+                  {r}
+                </option>
               ))}
             </select>
 
-            <select {...register("receiverDistrict")} className="select select-bordered w-full mb-3">
+            <select
+              {...register("receiverDistrict")}
+              className="select select-bordered w-full mb-3"
+            >
               <option value="">Select District</option>
               {districtsByRegion(receiverRegion).map((d) => (
-                <option key={d} value={d}>{d}</option>
+                <option key={d} value={d}>
+                  {d}
+                </option>
               ))}
             </select>
 
-            <input {...register("receiverAddress")} className="input input-bordered w-full mb-3" placeholder="Address" />
-            <input {...register("receiverNumber")} className="input input-bordered w-full" placeholder="Phone Number" />
+            <input
+              {...register("receiverAddress")}
+              className="input input-bordered w-full mb-3"
+              placeholder="Address"
+            />
+            <input
+              {...register("receiverNumber")}
+              className="input input-bordered w-full"
+              placeholder="Phone Number"
+            />
           </fieldset>
         </div>
 
