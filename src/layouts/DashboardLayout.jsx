@@ -6,6 +6,7 @@ import {
   FaCog,
   FaBars
 } from "react-icons/fa";
+import { AiOutlineHistory } from "react-icons/ai";
 
 const DashboardLayout = () => {
   return (
@@ -66,6 +67,20 @@ const DashboardLayout = () => {
               >
                 <FaBoxOpen />
                 My Products
+              </NavLink>
+            </li>
+            {/* payment history */}
+            <li>
+              <NavLink
+                to="/dashboard/payment-history"
+                className={({ isActive }) =>
+                  isActive
+                    ? "bg-primary text-white font-medium"
+                    : ""
+                }
+              >
+                <AiOutlineHistory />
+                Payment History
               </NavLink>
             </li>
 

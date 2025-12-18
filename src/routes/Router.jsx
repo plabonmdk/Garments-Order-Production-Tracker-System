@@ -15,6 +15,7 @@ import SendProduct from "../pages/SendProduct";
 import Payment from "../dashboardLayout/Payment/Payment";
 import PaymentSuccess from "../dashboardLayout/Payment/PaymentSuccess";
 import PaymentCancelled from "../dashboardLayout/Payment/paymentCancelled";
+import PaymentHistory from "../dashboardLayout/PaymentHistory/PaymentHistory";
 
 
 export const router = createBrowserRouter([
@@ -87,6 +88,10 @@ export const router = createBrowserRouter([
       {
         path: 'payment-cancelled',
        element: <PaymentCancelled></PaymentCancelled>
+      },
+      {
+        path: 'payment-history',
+        element: <PaymentHistory></PaymentHistory>
       }
     ],
   },
