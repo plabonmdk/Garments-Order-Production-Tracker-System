@@ -9,6 +9,7 @@ lerna-debug.log*
 
 node_modules
 garments-order-firebase-adminsdk.json
+.env
 dist
 dist-ssr
 *.local
