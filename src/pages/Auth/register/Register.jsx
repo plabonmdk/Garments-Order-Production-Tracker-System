@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 import useAuth from "../../../Hooks/useAuth";
 import SocialLogin from "../SocialLogin/SocialLogin";
 import background from "../../../assets/login bg.avif";
+import useAxiosSecure from "../../../Hooks/useAxiosSecure";
 
 const Register = () => {
   const {
@@ -17,33 +18,47 @@ const Register = () => {
   const { registerUser, updateUserProfile } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const axiosSecure = useAxiosSecure();
 
   const handleRegistration = async (data) => {
     try {
-      // Register user with email & password
+      //  Register user
       const result = await registerUser(data.email, data.password);
 
-      // Upload image to imgbb
+      //  Upload image
       const formData = new FormData();
       formData.append("image", data.photo[0]);
-      const imageAPI = `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_IMAGE_HOST}`;
+
+      const imageAPI = `https://api.imgbb.com/1/upload?key=${
+        import.meta.env.VITE_IMAGE_HOST
+      }`;
+
       const imgRes = await axios.post(imageAPI, formData);
 
-      // Update user profile
+      if (!imgRes?.data?.data?.url) {
+        throw new Error("Image upload failed");
+      }
+
+      const photoURL = imgRes.data.data.url;
+
+      //  Update Firebase profile
       await updateUserProfile({
         displayName: data.name,
-        photoURL: imgRes.data.data.url,
+        photoURL,
       });
 
-      // Optional: Save role & status to your database
-      await axios.post("/api/users", {
+      //  Save user to database
+      const userInfo = {
         name: data.name,
         email: data.email,
         role: data.role,
         status: "pending",
-        photoURL: imgRes.data.data.url,
-      });
+        photoURL,
+      };
 
+      await axiosSecure.post("/users", userInfo);
+
+      //  Success alert
       Swal.fire({
         icon: "success",
         title: "Registration Successful!",
@@ -52,21 +67,22 @@ const Register = () => {
         showConfirmButton: false,
       });
 
-      setTimeout(() => {
-        navigate("/login");
-      }, 2000);
+      navigate("/login");
     } catch (error) {
-      if (error.code === "auth/email-already-in-use") {
+      console.error(error);
+
+      if (error?.code === "auth/email-already-in-use") {
         Swal.fire({
           icon: "error",
           title: "Already Registered",
-          text: "You already have an account with this email. Please login.",
-        }).then(() => navigate("/login"));
+          text: "You already have an account. Please login.",
+        });
+        navigate("/login");
       } else {
         Swal.fire({
           icon: "error",
-          title: "Something went wrong",
-          text: error.message,
+          title: "Registration Failed",
+          text: error.message || "Something went wrong",
         });
       }
     }
@@ -92,6 +108,7 @@ const Register = () => {
             <label className="label">Photo</label>
             <input
               type="file"
+              accept="image/*"
               {...register("photo", { required: true })}
               className="file-input file-input-bordered w-full"
             />
@@ -105,7 +122,6 @@ const Register = () => {
               type="text"
               {...register("name", { required: true })}
               className="input input-bordered w-full"
-              placeholder="Enter your name"
             />
             {errors.name && (
               <p className="text-red-500 text-sm">Name is required</p>
@@ -117,13 +133,12 @@ const Register = () => {
               type="email"
               {...register("email", { required: true })}
               className="input input-bordered w-full"
-              placeholder="Enter your email"
             />
             {errors.email && (
               <p className="text-red-500 text-sm">Email is required</p>
             )}
 
-            {/* Role Dropdown */}
+            {/* Role */}
             <label className="label">Role</label>
             <select
               {...register("role", { required: true })}
@@ -147,33 +162,16 @@ const Register = () => {
                 pattern: /^(?=.*[a-z])(?=.*[A-Z]).{6,}$/,
               })}
               className="input input-bordered w-full"
-              placeholder="Enter your password"
             />
-            {errors.password?.type === "required" && (
-              <p className="text-red-500 text-sm">Password is required</p>
-            )}
-            {errors.password?.type === "minLength" && (
-              <p className="text-red-500 text-sm">
-                Password must be at least 6 characters
-              </p>
-            )}
-            {errors.password?.type === "pattern" && (
-              <p className="text-red-500 text-sm">
-                Password must contain at least one uppercase and one lowercase
-                letter
-              </p>
-            )}
 
-            <button className="btn btn-neutral mt-4 w-full">Register</button>
+            <button className="btn btn-neutral mt-4 w-full">
+              Register
+            </button>
           </fieldset>
 
           <p className="mt-4 text-center">
             Already have an account?{" "}
-            <Link
-              to="/login"
-              state={location.state}
-              className="text-blue-500 underline"
-            >
+            <Link to="/login" className="text-blue-500 underline">
               Login
             </Link>
           </p>

@@ -16,6 +16,7 @@ import Payment from "../dashboardLayout/Payment/Payment";
 import PaymentSuccess from "../dashboardLayout/Payment/PaymentSuccess";
 import PaymentCancelled from "../dashboardLayout/Payment/paymentCancelled";
 import PaymentHistory from "../dashboardLayout/PaymentHistory/PaymentHistory";
+import Delivery from "../pages/dalyvari/Delivery";
 
 
 export const router = createBrowserRouter([
@@ -30,6 +31,12 @@ export const router = createBrowserRouter([
       {
         path: "all-products",
         element: <AllProducts />,
+      },
+      {
+        path: 'delivery',
+        element: <PrivateRoute><Delivery></Delivery></PrivateRoute>,
+        loader: () => fetch('/serviceCenter.json').then(res => res.json())
+
       },
       {
         path: "contact",

@@ -12,20 +12,25 @@ const Login = () => {
     formState: { errors },
   } = useForm();
 
-  const { singInUser } = useAuth();
+  // ✅ spelling fixed
+  const { signInUser } = useAuth();
+
   const location = useLocation();
   const navigate = useNavigate();
 
   const handleLogin = (data) => {
-    singInUser(data.email, data.password)
+    signInUser(data.email, data.password)
       .then((result) => {
+        console.log("Login Success:", result.user);
         navigate(location?.state || "/");
       })
-      .catch((error) => console.log(error));
+      .catch((error) => {
+        console.error("Login Error:", error.message);
+      });
   };
 
   return (
-    <div className=" flex items-center justify-center">
+    <div className="flex items-center justify-center min-h-screen">
       <div className="card bg-base-100 w-full max-w-sm shadow-2xl overflow-hidden">
         <div
           className="h-40 flex flex-col items-center justify-center text-white text-center bg-cover bg-center"
@@ -38,43 +43,40 @@ const Login = () => {
         {/* Form */}
         <form onSubmit={handleSubmit(handleLogin)} className="card-body">
           <fieldset className="fieldset">
+            {/* Email */}
             <label className="label">Email</label>
             <input
               type="email"
               {...register("email", { required: true })}
-              className="input"
+              className="input input-bordered"
               placeholder="Email"
             />
-            {errors.email && <p className="text-red-500">Email is required</p>}
+            {errors.email && (
+              <p className="text-red-500 text-sm">Email is required</p>
+            )}
 
+            {/* Password */}
             <label className="label">Password</label>
             <input
               type="password"
               {...register("password", {
                 required: true,
                 minLength: 6,
-                pattern:
-                  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
               })}
-              className="input"
+              className="input input-bordered"
               placeholder="Password"
             />
 
             {errors.password?.type === "required" && (
-              <p className="text-red-500">Password is required</p>
+              <p className="text-red-500 text-sm">Password is required</p>
             )}
             {errors.password?.type === "minLength" && (
-              <p className="text-red-500">
+              <p className="text-red-500 text-sm">
                 Password must be at least 6 characters
               </p>
             )}
-            {errors.password?.type === "pattern" && (
-              <p className="text-red-500">
-                Must include uppercase, lowercase, number & special character
-              </p>
-            )}
 
-            <div>
+            <div className="mt-2">
               <Link
                 to="/forgot-password"
                 className="link link-hover text-blue-500"
@@ -86,7 +88,7 @@ const Login = () => {
             <button className="btn btn-neutral mt-4">Login</button>
           </fieldset>
 
-          <p className="mt-2 text-sm">
+          <p className="mt-2 text-sm text-center">
             New to Premium Garments?{" "}
             <Link
               state={location.state}

@@ -44,6 +44,11 @@ const Navbar = () => {
           </li>
         )
       }
+      <li>
+            <Link to= '/delivery'>
+            Delivery
+            </Link>
+          </li>
 
       <li>
         <Link to="/contact">
@@ -121,9 +126,9 @@ const Navbar = () => {
         </div>
 
         {/* Logo */}
-        <Link to="/" className="text-xl">
+        <span><Link to="/" className="text-xl">
           <Logo />
-        </Link>
+        </Link></span>
       </div>
 
       {/* CENTER */}
