@@ -17,6 +17,7 @@ import PaymentSuccess from "../dashboardLayout/Payment/PaymentSuccess";
 import PaymentCancelled from "../dashboardLayout/Payment/paymentCancelled";
 import PaymentHistory from "../dashboardLayout/PaymentHistory/PaymentHistory";
 import Delivery from "../pages/dalyvari/Delivery";
+import ApproveDelivery from "../dashboardLayout/Approve-Delivery/ApproveDelivery";
 
 
 export const router = createBrowserRouter([
@@ -99,6 +100,10 @@ export const router = createBrowserRouter([
       {
         path: 'payment-history',
         element: <PaymentHistory></PaymentHistory>
+      },
+      {
+        path: 'approve-delivery',
+        element: <ApproveDelivery></ApproveDelivery>
       }
     ],
   },

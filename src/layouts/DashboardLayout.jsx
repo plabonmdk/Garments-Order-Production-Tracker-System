@@ -4,7 +4,8 @@ import {
   FaHome,
   FaBoxOpen,
   FaCog,
-  FaBars
+  FaBars,
+  FaMotorcycle
 } from "react-icons/fa";
 import { AiOutlineHistory } from "react-icons/ai";
 
@@ -81,6 +82,19 @@ const DashboardLayout = () => {
               >
                 <AiOutlineHistory />
                 Payment History
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to="/dashboard/approve-delivery"
+                className={({ isActive }) =>
+                  isActive
+                    ? "bg-primary text-white font-medium"
+                    : ""
+                }
+              >
+                <FaMotorcycle />
+                Approve Delivery
               </NavLink>
             </li>
 
