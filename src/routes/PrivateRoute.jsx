@@ -1,5 +1,6 @@
 import { Navigate, useLocation } from "react-router";
 import useAuth from "../Hooks/useAuth";
+import Loading from "../shared/Loading";
 
 
 const PrivateRoute = ({children}) => {
@@ -9,9 +10,7 @@ const PrivateRoute = ({children}) => {
 
 
     if(loading){
-        return <div>
-            <span className="loading loading-infinity loading-xl"></span>
-        </div>
+        return <Loading></Loading>
     }
 
     if(!user){

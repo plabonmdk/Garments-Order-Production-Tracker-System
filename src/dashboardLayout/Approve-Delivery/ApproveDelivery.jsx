@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import React from "react";
+
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
 
 import { FaRegEye, FaRegTrashAlt, FaUserCheck } from "react-icons/fa";
@@ -8,6 +8,7 @@ import Swal from "sweetalert2";
 
 const ApproveDelivery = () => {
   const axiosSecure = useAxiosSecure();
+  
   const { refetch, data: riders = [] } = useQuery({
     queryKey: ["riders", "pending"],
     queryFn: async () => {
@@ -22,7 +23,8 @@ const ApproveDelivery = () => {
     };
 
     axiosSecure.patch(`/delivery/${rider._id}`, updateInfo).then((res) => {
-      if (res.data.modifiedCount > 0) {
+      console.log(res.data)
+      if (res.data.deliveryUpdate.modifiedCount > 0) {
         refetch();
         Swal.fire({
           position: "top-center",
@@ -87,6 +89,8 @@ const ApproveDelivery = () => {
     });
   };
 
+  
+
   return (
     <div>
       <h1>Riders pending Approval : {riders.length}</h1>
@@ -99,6 +103,7 @@ const ApproveDelivery = () => {
               <th>Name</th>
               <th>Email</th>
               <th>Status</th>
+              <th>Work Status</th>
               <th>Address</th>
               <th>Number</th>
               <th>District</th>
@@ -123,6 +128,7 @@ const ApproveDelivery = () => {
                     {rider.status}
                   </p>
                 </td>
+                <td>{rider.workerStatus}</td>
                 <td>{rider.Address}</td>
                 <td>{rider.Number}</td>
                 <td>{rider.District}</td>
@@ -163,6 +169,8 @@ const ApproveDelivery = () => {
           </tbody>
         </table>
       </div>
+     
+     
     </div>
   );
 };

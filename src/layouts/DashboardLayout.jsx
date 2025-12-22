@@ -1,30 +1,40 @@
 import React from "react";
-import { Link, NavLink, Outlet } from "react-router";
+import { NavLink, Outlet } from "react-router";
 import {
   FaHome,
-  FaBoxOpen,
-  FaCog,
+  FaUsers,
+  FaBox,
+  FaClipboardList,
+  FaPlus,
+  FaTasks,
+  FaUser,
   FaBars,
-  FaMotorcycle
 } from "react-icons/fa";
-import { AiOutlineHistory } from "react-icons/ai";
+import useRole from "../Hooks/useRole";
 
 const DashboardLayout = () => {
+  const { role } = useRole();
+
+  const navClass = ({ isActive }) =>
+    isActive
+      ? "bg-primary text-white font-medium"
+      : "hover:bg-base-300";
+
   return (
     <div className="drawer lg:drawer-open">
-      <input id="my-drawer-4" type="checkbox" className="drawer-toggle" />
+      <input id="dashboard-drawer" type="checkbox" className="drawer-toggle" />
 
-      {/* Content */}
+      {/* Main Content */}
       <div className="drawer-content flex flex-col">
-        {/* Navbar */}
-        <nav className="navbar bg-base-300 shadow-sm">
-          <label htmlFor="my-drawer-4" className="btn btn-ghost lg:hidden">
-            <FaBars size={18} />
+        {/* Top Navbar */}
+        <div className="navbar bg-base-300 shadow-sm">
+          <label htmlFor="dashboard-drawer" className="btn btn-ghost lg:hidden">
+            <FaBars />
           </label>
           <h2 className="text-lg font-semibold px-4">
             Premium Garments Dashboard
           </h2>
-        </nav>
+        </div>
 
         <div className="p-4">
           <Outlet />
@@ -33,83 +43,92 @@ const DashboardLayout = () => {
 
       {/* Sidebar */}
       <div className="drawer-side">
-        <label htmlFor="my-drawer-4" className="drawer-overlay"></label>
+        <label htmlFor="dashboard-drawer" className="drawer-overlay"></label>
 
         <aside className="w-64 bg-base-200 min-h-full">
-          <div className="p-4 text-xl font-bold border-b">
-            Dashboard
-          </div>
+          <div className="p-4 text-xl font-bold border-b">Dashboard</div>
 
           <ul className="menu p-4 gap-1">
-            {/* Home */}
+            {/* Common */}
             <li>
-              <NavLink
-                to="/"
-                className={({ isActive }) =>
-                  isActive
-                    ? "bg-primary text-white font-medium"
-                    : ""
-                }
-              >
-                <FaHome />
-                Homepage
+              <NavLink to="/" className={navClass}>
+                <FaHome /> Home
               </NavLink>
             </li>
 
-            {/* My Products */}
-            <li>
-              <NavLink
-                to="/dashboard/my-products"
-                className={({ isActive }) =>
-                  isActive
-                    ? "bg-primary text-white font-medium"
-                    : ""
-                }
-              >
-                <FaBoxOpen />
-                My Products
-              </NavLink>
-            </li>
-            {/* payment history */}
-            <li>
-              <NavLink
-                to="/dashboard/payment-history"
-                className={({ isActive }) =>
-                  isActive
-                    ? "bg-primary text-white font-medium"
-                    : ""
-                }
-              >
-                <AiOutlineHistory />
-                Payment History
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                to="/dashboard/approve-delivery"
-                className={({ isActive }) =>
-                  isActive
-                    ? "bg-primary text-white font-medium"
-                    : ""
-                }
-              >
-                <FaMotorcycle />
-                Approve Delivery
-              </NavLink>
-            </li>
+            {/* ================= ADMIN ================= */}
+            {role === "admin" && (
+              <>
+                <li>
+                  <NavLink to="/dashboard/manage-users" className={navClass}>
+                    <FaUsers /> Manage Users
+                  </NavLink>
+                </li>
 
-            {/* Settings */}
-            <li>
-              <NavLink
-                to="/dashboard/settings"
-                className={({ isActive }) =>
-                  isActive
-                    ? "bg-primary text-white font-medium"
-                    : ""
-                }
-              >
-                <FaCog />
-                Settings
+                <li>
+                  <NavLink to="/dashboard/all-products" className={navClass}>
+                    <FaBox /> All Products
+                  </NavLink>
+                </li>
+
+                <li>
+                  <NavLink to="/dashboard/all-orders" className={navClass}>
+                    <FaClipboardList /> All Orders
+                  </NavLink>
+                </li>
+              </>
+            )}
+
+            {/* ================= MANAGER ================= */}
+            {role === "manager" && (
+              <>
+                <li>
+                  <NavLink to="/dashboard/add-product" className={navClass}>
+                    <FaPlus /> Add Product
+                  </NavLink>
+                </li>
+
+                <li>
+                  <NavLink to="/dashboard/manage-products" className={navClass}>
+                    <FaBox /> Manage Products
+                  </NavLink>
+                </li>
+
+                <li>
+                  <NavLink to="/dashboard/pending-orders" className={navClass}>
+                    <FaTasks /> Pending Orders
+                  </NavLink>
+                </li>
+
+                <li>
+                  <NavLink to="/dashboard/approved-orders" className={navClass}>
+                    <FaClipboardList /> Approved Orders
+                  </NavLink>
+                </li>
+              </>
+            )}
+
+            {/* ================= BUYER ================= */}
+            {role === "buyer" && (
+              <>
+                <li>
+                  <NavLink to="/dashboard/my-orders" className={navClass}>
+                    <FaClipboardList /> My Orders
+                  </NavLink>
+                </li>
+
+                <li>
+                  <NavLink to="/dashboard/profile" className={navClass}>
+                    <FaUser /> My Profile
+                  </NavLink>
+                </li>
+              </>
+            )}
+
+            {/* Profile (Common) */}
+            <li className="mt-4 border-t pt-2">
+              <NavLink to="/dashboard/profile" className={navClass}>
+                <FaUser /> Profile
               </NavLink>
             </li>
           </ul>
