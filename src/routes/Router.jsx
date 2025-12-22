@@ -14,6 +14,8 @@ import ForgotPassword from "../pages/Auth/ForgotPassword/ForgotPassword";
 import DashboardLayout from "../layouts/dashboardLayout";
 import PrivateRoute from "./PrivateRoute";
 import AdminRoute from "./AdminRoute";
+import ManagerRoute from "./ManagerRoute";
+
 import ManageUsers from "../dashboardLayout/ManageUsers/MannageUsers";
 import AllOrders from "../dashboardLayout/AllOrder/AllOrder";
 import AddProduct from "../dashboardLayout/AddProduct/AddProduct";
@@ -24,26 +26,8 @@ import MyOrders from "../dashboardLayout/MyOrders/MyOrders";
 import TrackOrder from "../dashboardLayout/TrackOrder/TrackOrder";
 import MyProfile from "../dashboardLayout/MyProfile/Myprofile";
 import AdminAllProducts from "../dashboardLayout/AdminAllProducts/AdminAllProducts";
-import ManagerRoute from "./ManagerRoute";
-// import AdminAllProducts from "../dashboardLayout/AdminAllProducts/AdminAllProducts";
-// import ManagerRoute from "./ManagerRoute";
 
-/* ===== Admin Pages ===== */
-// import ManageUsers from "../dashboardLayout/ManageUsers/ManageUsers";
-// import AdminAllProducts from "../dashboardLayout/Admin/AllProducts";
-// import AdminAllOrders from "../dashboardLayout/Admin/AllOrders";
-
-/* ===== Manager Pages ===== */
-// import AddProduct from "../pages/SendProduct";
-// import ManageProducts from "../dashboardLayout/Manager/ManageProducts";
-// import PendingOrders from "../dashboardLayout/Manager/PendingOrders";
-// import ApprovedOrders from "../dashboardLayout/Manager/ApprovedOrders";
-
-/* ===== Buyer Pages ===== */
-// import MyOrders from "../dashboardLayout/Buyer/MyOrders";
-// import TrackOrder from "../dashboardLayout/Buyer/TrackOrder";
-// import Profile from "../dashboardLayout/Profile/Profile";
-// import ManageUsers from "../dashboardLayout/ManageUsers/MannageUsers";
+import ProductDetails from "../pages/ProductDetails/ProductDetails";
 
 export const router = createBrowserRouter([
   /* ================= PUBLIC ================= */
@@ -52,7 +36,19 @@ export const router = createBrowserRouter([
     element: <RootLayout />,
     children: [
       { index: true, element: <Home /> },
+
       { path: "all-products", element: <AllProducts /> },
+
+      // ✅ FIXED PRODUCT DETAILS ROUTE (DYNAMIC)
+      {
+        path: "products/:id",
+        element: (
+          <PrivateRoute>
+            <ProductDetails />
+          </PrivateRoute>
+        ),
+      },
+
       { path: "about", element: <About /> },
       { path: "contact", element: <Contact /> },
     ],

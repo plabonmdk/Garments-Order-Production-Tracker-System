@@ -21,7 +21,7 @@ const OrderForm = () => {
     },
   });
 
-  const quantity = watch("orderQuantity") || 0;
+  const quantity = Watch("orderQuantity") || 0;
   const totalPrice = quantity * product.price;
 
   const onSubmit = async (data) => {
