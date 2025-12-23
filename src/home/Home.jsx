@@ -4,14 +4,15 @@ import Brands from './brands/Brands';
 import Reviews from './reviews/Reviews';
 
 
-// const reviewsPromise = fetch("/reviews.json").then(res => res.json())
+
 
 const Home = () => {
     return (
         <div>
            <Banner></Banner>
+           <Reviews></Reviews>
            <Brands></Brands>
-           {/* <Reviews reviewsPromise={reviewsPromise}></Reviews> */}
+           
         </div>
     );
 };

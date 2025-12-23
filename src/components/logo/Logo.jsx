@@ -1,5 +1,5 @@
 import React from 'react';
-import logo from '../../assets/hand-drawn-clothing-store-logo-design_23-2149577874.avif';
+import logo from '../../assets/logo.png';
 import { Link } from 'react-router';
 
 const Logo = () => {
@@ -7,8 +7,8 @@ const Logo = () => {
         <>
             <Link to='/'>
             <div className='flex items-center'>
-                <img className='w-20 bg-white' src={logo} alt="Plabon Logo" />
-                <h1 className='text-xl -ml-3 text-gray-600 font-bold'>Plabon</h1>
+                <img className='w-20 ' src={logo} alt="Plabon Logo" />
+                <h1 className='text-[10px] -ml-10 mt-7 text-gray-600 font-bold'>Plabon</h1>
             </div>
         </Link>
         </>

@@ -1,17 +1,21 @@
-// src/dashboardLayout/Buyer/MyOrders.jsx
+import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import { useNavigate } from "react-router";
+import useAuth from "../../Hooks/useAuth";
 import Swal from "sweetalert2";
 
 const MyOrders = () => {
   const axiosSecure = useAxiosSecure();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [processingOrderId, setProcessingOrderId] = useState(null);
 
   const { data: orders = [], refetch } = useQuery({
-    queryKey: ["my-orders"],
+    queryKey: ["my-orders", user?.email],
+    enabled: !!user?.email,
     queryFn: async () => {
-      const res = await axiosSecure.get("/orders/my-orders");
+      const res = await axiosSecure.get(`/orders?email=${user.email}`);
       return res.data;
     },
   });
@@ -23,6 +27,7 @@ const MyOrders = () => {
       showCancelButton: true,
       confirmButtonText: "Yes, cancel it!",
     });
+
     if (result.isConfirmed) {
       const res = await axiosSecure.patch(`/orders/cancel/${orderId}`);
       if (res.data.modifiedCount > 0) {
@@ -32,9 +37,36 @@ const MyOrders = () => {
     }
   };
 
+  const handlePayment = async (order) => {
+    if (!order) return;
+
+    setProcessingOrderId(order._id);
+
+    const paymentInfo = {
+      totalPrice: order.totalPrice,
+      productName: order.productTitle,
+      orderId: order._id,
+    };
+
+    try {
+      const res = await axiosSecure.post("/create-checkout-session", paymentInfo);
+      if (res.data?.url) {
+        window.location.href = res.data.url;
+      } else {
+        throw new Error("No checkout URL returned");
+      }
+    } catch (error) {
+      console.error("Payment error:", error);
+      Swal.fire("Error", "Payment could not be processed.", "error");
+    } finally {
+      setProcessingOrderId(null);
+    }
+  };
+
   return (
     <div className="p-4">
       <h2 className="text-xl font-bold mb-4">My Orders</h2>
+
       <div className="overflow-x-auto">
         <table className="table table-zebra">
           <thead>
@@ -47,14 +79,31 @@ const MyOrders = () => {
               <th>Actions</th>
             </tr>
           </thead>
+
           <tbody>
             {orders.map((o) => (
               <tr key={o._id}>
                 <td>{o._id.slice(0, 6)}...</td>
-                <td>{o.productName}</td>
-                <td>{o.quantity}</td>
+                <td>{o.productTitle}</td>
+                <td>{o.orderQuantity}</td>
                 <td>{o.status}</td>
-                <td>{o.paymentOption}</td>
+                <td>
+                  {/* Show Pay button only if order is pending and not paid */}
+                  {o.paid ? (
+                    <span className="text-green-600 font-semibold">Paid</span>
+                  ) : o.status === "pending" ? (
+                    <button
+                      className="btn btn-xs btn-success"
+                      onClick={() => handlePayment(o)}
+                      disabled={processingOrderId === o._id}
+                    >
+                      {processingOrderId === o._id ? "Processing..." : "Pay"}
+                    </button>
+                  ) : (
+                    "-"
+                  )}
+                </td>
+
                 <td className="flex gap-2">
                   <button
                     className="btn btn-xs btn-info"
@@ -63,7 +112,7 @@ const MyOrders = () => {
                     View
                   </button>
 
-                  {o.status === "Pending" && (
+                  {o.status === "pending" && !o.paid && (
                     <button
                       className="btn btn-xs btn-error"
                       onClick={() => handleCancel(o._id)}
@@ -74,6 +123,7 @@ const MyOrders = () => {
                 </td>
               </tr>
             ))}
+
             {orders.length === 0 && (
               <tr>
                 <td colSpan="6" className="text-center py-6">

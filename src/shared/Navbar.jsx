@@ -1,6 +1,6 @@
 import React from "react";
+import { Link, NavLink } from "react-router";
 import Logo from "../components/logo/Logo";
-import { Link } from "react-router";
 import { IoIosHome } from "react-icons/io";
 import {
   MdCategory,
@@ -16,82 +16,53 @@ import useAuth from "../Hooks/useAuth";
 const Navbar = () => {
   const { user, logOut } = useAuth();
 
+  const navLinkClass = ({ isActive }) =>
+    isActive
+      ? "text-primary font-semibold"
+      : "hover:text-primary";
+
   const publicLinks = (
     <>
       <li>
-        <Link to="/">
-          <IoIosHome className="text-xl" /> Home
-        </Link>
+        <NavLink to="/" className={navLinkClass}>
+          <IoIosHome className="text-lg" /> Home
+        </NavLink>
       </li>
 
       <li>
-        <Link to="/all-products">
-          <MdCategory className="text-xl" /> All Products
-        </Link>
+        <NavLink to="/all-products" className={navLinkClass}>
+          <MdCategory className="text-lg" /> All Products
+        </NavLink>
       </li>
 
       <li>
-        <Link to="/about">
-          <FcAbout className="text-xl" /> About Us
-        </Link>
-      </li>
-      {
-        user && (
-          <li>
-            <Link to= 'send-product'>
-            Send Product
-            </Link>
-          </li>
-        )
-      }
-      <li>
-            <Link to= '/delivery'>
-            Delivery
-            </Link>
-          </li>
-
-      <li>
-        <Link to="/contact">
-          <MdOutlineContactMail className="text-xl" /> Contact
-        </Link>
+        <NavLink to="/about" className={navLinkClass}>
+          <FcAbout className="text-lg" /> About
+        </NavLink>
       </li>
 
-      {user && (
-        <li>
-          <Link to="/dashboard/my-products">
-            <MdInventory className="text-xl" /> My Products
-          </Link>
-        </li>
-      )}
+      <li>
+        <NavLink to="/contact" className={navLinkClass}>
+          <MdOutlineContactMail className="text-lg" /> Contact
+        </NavLink>
+      </li>
+
+      
     </>
   );
 
   return (
-    <div className="navbar bg-base-100 shadow-sm px-4">
+    <div className="navbar bg-base-100 shadow-md px-4 sticky top-0 z-50">
       {/* LEFT */}
       <div className="navbar-start">
-        {/* Mobile Menu */}
+        {/* Mobile menu */}
         <div className="dropdown">
           <label tabIndex={0} className="btn btn-ghost lg:hidden">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M4 6h16M4 12h8m-8 6h16"
-              />
-            </svg>
+            ☰
           </label>
-
           <ul
             tabIndex={0}
-            className="menu menu-sm dropdown-content bg-base-100 rounded-box mt-3 w-52 p-2 shadow z-10"
+            className="menu menu-sm dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-56 z-20"
           >
             {publicLinks}
 
@@ -126,20 +97,20 @@ const Navbar = () => {
         </div>
 
         {/* Logo */}
-        <span><Link to="/" className="text-xl">
+        <Link to="/" className="ml-2">
           <Logo />
-        </Link></span>
+        </Link>
       </div>
 
       {/* CENTER */}
       <div className="navbar-center hidden lg:flex">
-        <ul className="menu menu-horizontal px-1">{publicLinks}</ul>
+        <ul className="menu menu-horizontal gap-2">{publicLinks}</ul>
       </div>
 
       {/* RIGHT */}
       <div className="navbar-end hidden lg:flex">
         {!user ? (
-          <ul className="menu menu-horizontal px-1">
+          <ul className="menu menu-horizontal gap-2">
             <li>
               <Link to="/login">
                 <LuLogIn /> Login
@@ -160,21 +131,20 @@ const Navbar = () => {
                     user?.photoURL ||
                     "https://i.ibb.co/2ySvqLZ/default-avatar.png"
                   }
-                  alt="User Avatar"
+                  alt="user"
                 />
               </div>
             </label>
 
             <ul
               tabIndex={0}
-              className="mt-3 p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52"
+              className="menu menu-sm dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52"
             >
               <li>
                 <Link to="/dashboard">
                   <MdDashboard /> Dashboard
                 </Link>
               </li>
-              
               <li>
                 <button onClick={logOut}>
                   <LuLogOut /> Logout

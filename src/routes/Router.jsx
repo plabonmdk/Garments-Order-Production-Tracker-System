@@ -28,6 +28,10 @@ import MyProfile from "../dashboardLayout/MyProfile/Myprofile";
 import AdminAllProducts from "../dashboardLayout/AdminAllProducts/AdminAllProducts";
 
 import ProductDetails from "../pages/ProductDetails/ProductDetails";
+import OrderForm from "../pages/OrderForm/OrderForm";
+import Payment from "../dashboardLayout/Payment/Payment";
+import PaymentCancelled from "../dashboardLayout/Payment/paymentCancelled";
+import PaymentSuccess from "../dashboardLayout/Payment/PaymentSuccess";
 
 export const router = createBrowserRouter([
   /* ================= PUBLIC ================= */
@@ -39,7 +43,7 @@ export const router = createBrowserRouter([
 
       { path: "all-products", element: <AllProducts /> },
 
-      // ✅ FIXED PRODUCT DETAILS ROUTE (DYNAMIC)
+      //  FIXED PRODUCT DETAILS ROUTE (DYNAMIC)
       {
         path: "products/:id",
         element: (
@@ -49,6 +53,14 @@ export const router = createBrowserRouter([
         ),
       },
 
+      {
+        path: "order/:id",
+        element: (
+          <PrivateRoute>
+            <OrderForm />
+          </PrivateRoute>
+        ),
+      },
       { path: "about", element: <About /> },
       { path: "contact", element: <Contact /> },
     ],
@@ -138,6 +150,18 @@ export const router = createBrowserRouter([
       {
         path: "my-orders",
         element: <MyOrders />,
+      },
+      {
+        path: "payment",
+        element: <Payment></Payment>
+      },
+      {
+        path: "payment-cancelled",
+        element: <PaymentCancelled></PaymentCancelled>
+      },
+      {
+        path: 'payment-success',
+        element: <PaymentSuccess></PaymentSuccess>
       },
       {
         path: "track-order/:orderId",

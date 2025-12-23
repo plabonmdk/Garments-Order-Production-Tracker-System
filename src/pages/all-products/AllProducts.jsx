@@ -1,12 +1,14 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-// import { useNavigate } from "react-router";
-import useAxiosSecure from "../../Hooks/useAxiosSecure";
+import { motion } from "framer-motion";
 import { useNavigate } from "react-router";
+import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import Loading from "../../shared/Loading";
 
 const AllProducts = () => {
   const axiosSecure = useAxiosSecure();
   const navigate = useNavigate();
+  const [search, setSearch] = useState("");
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: ["allProducts"],
@@ -16,52 +18,90 @@ const AllProducts = () => {
     },
   });
 
-  if (isLoading) return <Loading></Loading>;
+  if (isLoading) return <Loading />;
+
+  //  Search filter
+  const filteredProducts = products.filter(product =>
+    product.title.toLowerCase().includes(search.toLowerCase()) ||
+    product.category.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
-      <h2 className="text-2xl font-bold mb-6">All Products</h2>
+    <div className="max-w-7xl mx-auto px-4 py-10">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4"
+      >
+        <h2 className="text-3xl font-bold">All Products</h2>
 
-      {/* 3 Column Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {products.map(product => (
-          <div
+        {/*  Search Input */}
+        <input
+          type="text"
+          placeholder="Search by product name or category..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="input input-bordered w-full md:w-96"
+        />
+      </motion.div>
+
+      {/* Products Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {filteredProducts.map((product, index) => (
+          <motion.div
             key={product._id}
-            className="card bg-base-100 shadow-lg border"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.08 }}
+            whileHover={{ scale: 1.03 }}
+            className="bg-white rounded-xl shadow-md hover:shadow-xl transition"
           >
-            <figure>
+            {/* Image */}
+            <div className="overflow-hidden rounded-t-xl">
               <img
                 src={product.media?.images?.[0]}
                 alt={product.title}
-                className="h-48 w-full object-cover"
+                className="h-52 w-full object-cover hover:scale-110 transition duration-500"
               />
-            </figure>
+            </div>
 
-            <div className="card-body">
-              <h3 className="card-title">{product.title}</h3>
+            {/* Content */}
+            <div className="p-5 space-y-2">
+              <h3 className="text-lg font-semibold line-clamp-1">
+                {product.title}
+              </h3>
 
               <p className="text-sm text-gray-500">
                 Category: {product.category}
               </p>
 
-              <p className="font-semibold">Price: ৳{product.price}</p>
+              <p className="font-bold text-primary">
+                ৳{product.price}
+              </p>
 
               <p className="text-sm">
                 Available: {product.availableQuantity}
               </p>
 
-              <div className="card-actions justify-end mt-4">
-                <button
-                  onClick={() => navigate(`/products/${product._id}`)}
-                  className="btn btn-primary btn-sm"
-                >
-                  View Details
-                </button>
-              </div>
+              <button
+                onClick={() => navigate(`/products/${product._id}`)}
+                className="btn btn-primary btn-sm w-full mt-4"
+              >
+                View Details
+              </button>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
+
+      {/* No Result */}
+      {filteredProducts.length === 0 && (
+        <p className="text-center text-gray-500 mt-10">
+          No products found 
+        </p>
+      )}
     </div>
   );
 };

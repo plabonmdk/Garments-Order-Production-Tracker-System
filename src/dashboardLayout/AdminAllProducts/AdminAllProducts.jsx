@@ -1,100 +1,80 @@
-import { useQuery } from "@tanstack/react-query";
-import useAxiosSecure from "../../Hooks/useAxiosSecure";
+import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
+import useAxiosSecure from "../../Hooks/useAxiosSecure";
 
 const AdminAllProducts = () => {
   const axiosSecure = useAxiosSecure();
+  const [products, setProducts] = useState([]);
 
-  const { data: products = [], refetch } = useQuery({
-    queryKey: ["all-products"],
-    queryFn: async () => {
-      const res = await axiosSecure.get("/products");
-      return res.data;
-    },
-  });
-
-  const toggleHome = async (id, value) => {
-    await axiosSecure.patch(`/products/home/${id}`, {
-      showOnHome: value,
-    });
-    refetch();
+  const fetchProducts = async () => {
+    try {
+      const res = await axiosSecure.get("/admin/products");
+      setProducts(res.data);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const handleDelete = (id) => {
-    Swal.fire({
-      title: "Delete product?",
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const handleDelete = async (id) => {
+    const confirm = await Swal.fire({
+      title: "Are you sure?",
+      text: "This product will be deleted permanently!",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#d33",
-    }).then(async (res) => {
-      if (res.isConfirmed) {
-        const result = await axiosSecure.delete(`/products/${id}`);
-        if (result.data.deletedCount > 0) {
-          refetch();
-          Swal.fire("Deleted!", "Product removed", "success");
-        }
-      }
+      confirmButtonText: "Yes, delete it!",
     });
+
+    if (confirm.isConfirmed) {
+      await axiosSecure.delete(`/admin/products/${id}`);
+      Swal.fire("Deleted!", "Product has been deleted.", "success");
+      fetchProducts();
+    }
+  };
+
+  const handleToggleShow = async (id, showOnHome) => {
+    await axiosSecure.patch(`/admin/products/${id}`, { showOnHome: !showOnHome });
+    fetchProducts();
   };
 
   return (
-    <div>
-      <h2 className="text-xl font-bold mb-4">All Products</h2>
-
-      <table className="table table-zebra">
+    <div className="p-6">
+      <h2 className="text-2xl font-bold mb-4">All Products</h2>
+      <table className="table-auto w-full border">
         <thead>
-          <tr>
+          <tr className="bg-gray-200">
             <th>Image</th>
             <th>Name</th>
             <th>Price</th>
             <th>Category</th>
             <th>Created By</th>
-            <th>Home</th>
+            <th>Show on Home</th>
             <th>Actions</th>
           </tr>
         </thead>
-
         <tbody>
-          {products.map((p) => (
-            <tr key={p._id}>
+          {products.map((product) => (
+            <tr key={product._id} className="text-center border-t">
               <td>
-                <img
-                  src={p.images?.[0]}
-                  className="w-14 h-14 object-cover rounded"
-                />
+                <img src={product.image} alt={product.title} className="w-16 h-16 object-cover mx-auto"/>
               </td>
-              <td>{p.name}</td>
-              <td>${p.price}</td>
-              <td>{p.category}</td>
-              <td>{p.createdBy}</td>
+              <td>{product.title}</td>
+              <td>৳{product.price}</td>
+              <td>{product.category}</td>
+              <td>{product.createdBy}</td>
               <td>
                 <input
                   type="checkbox"
-                  className="toggle toggle-primary"
-                  checked={p.showOnHome}
-                  onChange={(e) =>
-                    toggleHome(p._id, e.target.checked)
-                  }
+                  checked={product.showOnHome || false}
+                  onChange={() => handleToggleShow(product._id, product.showOnHome)}
                 />
               </td>
-              <td className="flex gap-2">
-                <button
-                  className="btn btn-xs btn-info"
-                  onClick={() =>
-                    window.location.assign(
-                      `/dashboard/update-product/${p._id}`
-                    )
-                  }
-                >
-                  Update
-                </button>
-
-                <button
-                  onClick={() => handleDelete(p._id)}
-                  className="btn btn-xs btn-error"
-                >
-                  Delete
-                </button>
+              <td>
+                <button className="btn btn-sm btn-primary mr-2" onClick={() => alert("Redirect to edit page")}>Update</button>
+                <button className="btn btn-sm btn-error" onClick={() => handleDelete(product._id)}>Delete</button>
               </td>
             </tr>
           ))}

@@ -11,14 +11,15 @@ import {
   FaBars,
 } from "react-icons/fa";
 import useRole from "../Hooks/useRole";
+import Logo from "../components/logo/Logo";
 
 const DashboardLayout = () => {
   const { role } = useRole();
 
   const navClass = ({ isActive }) =>
     isActive
-      ? "bg-primary text-white font-medium"
-      : "hover:bg-base-300";
+      ? "bg-primary text-white font-medium rounded-md"
+      : "hover:bg-base-300 rounded-md";
 
   return (
     <div className="drawer lg:drawer-open">
@@ -31,11 +32,12 @@ const DashboardLayout = () => {
           <label htmlFor="dashboard-drawer" className="btn btn-ghost lg:hidden">
             <FaBars />
           </label>
-          <h2 className="text-lg font-semibold px-4">
-            Premium Garments Dashboard
-          </h2>
+          <span>
+            <Logo></Logo>
+          </span>
         </div>
 
+        {/* Outlet for Nested Routes */}
         <div className="p-4">
           <Outlet />
         </div>
@@ -49,7 +51,7 @@ const DashboardLayout = () => {
           <div className="p-4 text-xl font-bold border-b">Dashboard</div>
 
           <ul className="menu p-4 gap-1">
-            {/* Common */}
+            {/* Common Home Link */}
             <li>
               <NavLink to="/" className={navClass}>
                 <FaHome /> Home
@@ -118,14 +120,14 @@ const DashboardLayout = () => {
                 </li>
 
                 <li>
-                  <NavLink to="/dashboard/profile" className={navClass}>
-                    <FaUser /> My Profile
+                  <NavLink to="/dashboard/track-order" className={navClass}>
+                    <FaTasks /> Track Order
                   </NavLink>
                 </li>
               </>
             )}
 
-            {/* Profile (Common) */}
+            {/* Common Profile Link */}
             <li className="mt-4 border-t pt-2">
               <NavLink to="/dashboard/profile" className={navClass}>
                 <FaUser /> Profile

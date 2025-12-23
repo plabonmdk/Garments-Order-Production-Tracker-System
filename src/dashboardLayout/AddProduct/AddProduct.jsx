@@ -4,11 +4,14 @@ import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import useAuth from "../../Hooks/useAuth";
 import { useState } from "react";
 
+
 const AddProduct = () => {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
   const { register, handleSubmit, reset } = useForm();
   const [preview, setPreview] = useState([]);
+
+  
 
   const handleImagePreview = (e) => {
     const files = Array.from(e.target.files);
@@ -17,6 +20,7 @@ const AddProduct = () => {
   };
 
   const onSubmit = async (data) => {
+    console.log(data)
     const images = Array.from(data.images).map((file) => file.name);
 
     const product = {
@@ -36,7 +40,7 @@ const AddProduct = () => {
       },
     };
 
-    const res = await axiosSecure.post("/products", product);
+    const res = await axiosSecure.post(`${import.meta.env.VITE_API_URL}/products` , product);
 
     if (res.data.insertedId) {
       Swal.fire("Success!", "Product added successfully", "success");
@@ -83,7 +87,7 @@ const AddProduct = () => {
         <input
           type="number"
           {...register("availableQty", { required: true })}
-          placeholder="Available Quantity"
+          placeholder=" Quantity"
           className="input input-bordered w-full"
         />
 
@@ -120,14 +124,14 @@ const AddProduct = () => {
           className="input input-bordered w-full"
         />
 
-        <select
+        {/* <select
           {...register("paymentOption", { required: true })}
           className="select select-bordered w-full"
         >
           <option value="">Payment Option</option>
           <option value="COD">Cash on Delivery</option>
           <option value="PayFirst">PayFirst</option>
-        </select>
+        </select> */}
 
         <label className="flex items-center gap-2">
           <input

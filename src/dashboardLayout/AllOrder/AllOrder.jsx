@@ -1,7 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import useAxiosSecure from "../../Hooks/useAxiosSecure";
+
 import { useNavigate } from "react-router";
+import Loading from "../../shared/Loading";
+import useAxiosSecure from "../../Hooks/useAxiosSecure";
 
 const AllOrders = () => {
   const axiosSecure = useAxiosSecure();
@@ -16,7 +18,7 @@ const AllOrders = () => {
     },
   });
 
-  if (isLoading) return <span className="loading loading-spinner"></span>;
+  if (isLoading) return <Loading></Loading>;
 
   return (
     <div>
