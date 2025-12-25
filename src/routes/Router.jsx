@@ -32,6 +32,7 @@ import OrderForm from "../pages/OrderForm/OrderForm";
 import Payment from "../dashboardLayout/Payment/Payment";
 import PaymentCancelled from "../dashboardLayout/Payment/paymentCancelled";
 import PaymentSuccess from "../dashboardLayout/Payment/PaymentSuccess";
+import OrderDetails from "../dashboardLayout/orderDetails/OrderDetails";
 
 export const router = createBrowserRouter([
   /* ================= PUBLIC ================= */
@@ -110,6 +111,10 @@ export const router = createBrowserRouter([
             <AllOrders />
           </AdminRoute>
         ),
+      },
+      {
+        path: 'order-details',
+        element: <OrderDetails></OrderDetails>
       },
 
       /* -------- MANAGER -------- */

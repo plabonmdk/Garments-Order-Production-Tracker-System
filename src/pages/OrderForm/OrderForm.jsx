@@ -59,7 +59,7 @@ const OrderForm = () => {
       await refetch();
 
       if (product.paymentOptions?.includes("Online")) {
-        navigate(`/payment/${res.data.insertedId}`);
+        navigate(`/dashboard/my-orders`);
       } else {
         Swal.fire("Order placed successfully!");
         navigate("/dashboard/my-orders");

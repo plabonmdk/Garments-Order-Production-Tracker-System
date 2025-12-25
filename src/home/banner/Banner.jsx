@@ -2,15 +2,15 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router";
 
-import b1 from "../../assets/banner1.jpg";
-import b2 from "../../assets/banner2.jpg";
-import b3 from "../../assets/banner3.jpg";
-import b4 from "../../assets/banner4.jpg";
-import b5 from "../../assets/banner5.jpg";
-import b6 from "../../assets/banner6.jpg";
-
-const images = [b1, b2, b3, b4, b5, b6];
-
+const images = [
+  "https://i.ibb.co/9HCypQty/pexels-equalstock-32048352.jpg",
+  "https://i.ibb.co/BH8f5m2q/workers-in-a-large-garment-factory-engaged-in-sewing-pink-textile-products-in-a-well-lit-production.jpg",
+  "https://i.ibb.co/WpfYvgkb/photo-1741183394845-9bc06a8ce293.jpg",
+  "https://i.ibb.co/kVzgn2yZ/images-3.jpg",
+  "https://i.ibb.co/hrh6Bst/360-F-396682976-y-FU9q-Mb-L9d-Cdm-SD0-Zos7k-SIg-Mne-Eb4w-Q.jpg",
+  "https://i.ibb.co/N6xyLWcv/premium-photo-1682089748132-d9bda2c7a220.jpg",
+  "https://i.ibb.co/rR8QP8dQ/gazipur-bangladesh-02nd-may-2021-new-garment-workers-are-undergoing-training-in-mg-garments-training.jpg",
+];
 
 const MotionLink = motion(Link);
 
@@ -28,7 +28,10 @@ const Banner = () => {
   }, []);
 
   return (
-    <div className="w-full h-[500px] md:h-[650px] relative overflow-hidden">
+    <div
+      id="banner"
+      className="w-full h-[500px] md:h-[650px] relative overflow-hidden"
+    >
       {/* Background Slider */}
       <AnimatePresence>
         <motion.div
@@ -71,7 +74,7 @@ const Banner = () => {
           quality control & global export support for your fashion brand.
         </motion.p>
 
-        
+        {/* Button */}
         <MotionLink
           to="/all-products"
           initial={{ scale: 0.8, opacity: 0 }}

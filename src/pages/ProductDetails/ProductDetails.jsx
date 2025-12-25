@@ -14,23 +14,31 @@ const ProductDetails = () => {
   const {
     data: product,
     isLoading,
-    error,
+    isError,
   } = useQuery({
     queryKey: ["product", id],
     queryFn: async () => {
-      const res = await axiosSecure.get(`/products/${id}`);
+      const res = await axiosSecure.get( `/products/${id}`
+      );
+      console.log("PRODUCT API RESPONSE:", res.data);
       return res.data;
     },
   });
 
   if (isLoading) return <Loading />;
-  if (error || !product)
-    return <p className="text-center text-red-500">Product not found</p>;
+
+  if (isError || !product) {
+    return (
+      <p className="text-center text-red-500 mt-10">
+        Product not found
+      </p>
+    );
+  }
 
   const canOrder = user && role !== "admin" && role !== "manager";
 
   return (
-    <div className="max-w-6xl  mx-auto px-6 py-10">
+    <div className="max-w-6xl mx-auto px-6 py-10">
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
@@ -44,8 +52,8 @@ const ProductDetails = () => {
           transition={{ duration: 0.6 }}
         >
           <img
-            src={product?.media?.images?.[0]}
-            alt={product?.title}
+            src={product?.media?.images?.[0] || "/placeholder.png"}
+            alt={product?.title || "Product"}
             className="w-full h-[400px] object-cover rounded-lg"
           />
         </motion.div>
@@ -58,17 +66,37 @@ const ProductDetails = () => {
           className="flex flex-col justify-between"
         >
           <div>
-            <h2 className="text-3xl font-bold mb-3">{product.title}</h2>
-            <p className="text-gray-600 mb-6">{product.description}</p>
+            <h2 className="text-3xl font-bold mb-3">
+              {product?.title || "No title"}
+            </h2>
+
+            <p className="text-gray-600 mb-6">
+              {product?.description || "No description available"}
+            </p>
 
             <div className="grid grid-cols-2 gap-4 text-sm">
-              <p><b>Category:</b> {product.category}</p>
-              <p><b>Price:</b> ৳{product.price}</p>
-              <p><b>Available:</b> {product.availableQuantity}</p>
-              <p><b>Minimum Order:</b> {product.minimumOrder}</p>
+              <p>
+                <b>Category:</b> {product?.category || "N/A"}
+              </p>
+
+              <p>
+                <b>Price:</b>{" "}
+                ৳{Number(product?.price || 0).toLocaleString("en-BD")}
+              </p>
+
+              <p>
+                <b>Available:</b> {product?.availableQuantity ?? 0}
+              </p>
+
+              <p>
+                <b>Minimum Order:</b> {product?.minimumOrder ?? 1}
+              </p>
+
               <p className="col-span-2">
                 <b>Payment Options:</b>{" "}
-                {product.paymentOptions?.join(", ")}
+                {Array.isArray(product?.paymentOptions)
+                  ? product.paymentOptions.join(", ")
+                  : "N/A"}
               </p>
             </div>
           </div>

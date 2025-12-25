@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
-
-import { useNavigate } from "react-router";
+import { useState } from "react";
 import Swal from "sweetalert2";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
 
 const PendingOrders = () => {
   const axiosSecure = useAxiosSecure();
-  const navigate = useNavigate();
+  const [selectedOrder, setSelectedOrder] = useState(null); // for modal
+  const [modalOpen, setModalOpen] = useState(false);
 
   const { data: orders = [], refetch } = useQuery({
     queryKey: ["pending-orders"],
@@ -21,6 +21,7 @@ const PendingOrders = () => {
     if (res.data.modifiedCount > 0) {
       Swal.fire("Success", "Order approved", "success");
       refetch();
+      setModalOpen(false);
     }
   };
 
@@ -29,7 +30,13 @@ const PendingOrders = () => {
     if (res.data.modifiedCount > 0) {
       Swal.fire("Success", "Order rejected", "success");
       refetch();
+      setModalOpen(false);
     }
+  };
+
+  const openModal = (order) => {
+    setSelectedOrder(order);
+    setModalOpen(true);
   };
 
   return (
@@ -53,15 +60,13 @@ const PendingOrders = () => {
             {orders.map((o) => (
               <tr key={o._id}>
                 <td>{o._id.slice(0, 6)}...</td>
-                <td>{o.userName}</td>
-                <td>{o.productName}</td>
-                <td>{o.quantity}</td>
+                <td>{o.firstName}</td>
+                <td>{o.productTitle}</td>
+                <td>{o.orderQuantity}</td>
                 <td>{new Date(o.createdAt).toLocaleDateString()}</td>
                 <td className="flex gap-2">
                   <button
-                    onClick={() =>
-                      navigate(`/dashboard/order-details/${o._id}`)
-                    }
+                    onClick={() => openModal(o)}
                     className="btn btn-xs btn-info"
                   >
                     View
@@ -94,6 +99,51 @@ const PendingOrders = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Modal */}
+      {modalOpen && selectedOrder && (
+        <div className="modal modal-open">
+          <div className="modal-box relative">
+            <h3 className="text-lg font-bold">Order Details</h3>
+            <button
+              className="btn btn-sm btn-circle absolute right-2 top-2"
+              onClick={() => setModalOpen(false)}
+            >
+              ✕
+            </button>
+
+            <div className="mt-4 space-y-2">
+              <p><strong>Order ID:</strong> {selectedOrder._id}</p>
+              <p><strong>User:</strong> {selectedOrder.firstName}</p>
+              <p><strong>Product:</strong> {selectedOrder.productTitle}</p>
+              <p><strong>Quantity:</strong> {selectedOrder.orderQuantity}</p>
+              <p><strong>Order Date:</strong> {new Date(selectedOrder.createdAt).toLocaleDateString()}</p>
+              <p><strong>Status:</strong> {selectedOrder.status || "Pending"}</p>
+            </div>
+
+            <div className="modal-action">
+              <button
+                onClick={() => handleApprove(selectedOrder._id)}
+                className="btn btn-success"
+              >
+                Approve
+              </button>
+              <button
+                onClick={() => handleReject(selectedOrder._id)}
+                className="btn btn-error"
+              >
+                Reject
+              </button>
+              <button
+                onClick={() => setModalOpen(false)}
+                className="btn"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

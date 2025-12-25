@@ -9,6 +9,8 @@ const AllProducts = () => {
   const axiosSecure = useAxiosSecure();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 6;
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: ["allProducts"],
@@ -21,9 +23,22 @@ const AllProducts = () => {
   if (isLoading) return <Loading />;
 
   //  Search filter
-  const filteredProducts = products.filter(product =>
-    product.title.toLowerCase().includes(search.toLowerCase()) ||
-    product.category.toLowerCase().includes(search.toLowerCase())
+  const filteredProducts = products.filter(
+    (product) =>
+      (product?.title || "")
+        .toLowerCase()
+        .includes((search || "").toLowerCase()) ||
+      (product?.category || "")
+        .toLowerCase()
+        .includes((search || "").toLowerCase())
+  );
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+  const startIndex = (currentPage - 1) * productsPerPage;
+  const currentProducts = filteredProducts.slice(
+    startIndex,
+    startIndex + productsPerPage
   );
 
   return (
@@ -37,19 +52,22 @@ const AllProducts = () => {
       >
         <h2 className="text-3xl font-bold">All Products</h2>
 
-        {/*  Search Input */}
+        {/* Search Input */}
         <input
           type="text"
           placeholder="Search by product name or category..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setCurrentPage(1); // Reset page on search
+          }}
           className="input input-bordered w-full md:w-96"
         />
       </motion.div>
 
       {/* Products Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {filteredProducts.map((product, index) => (
+        {currentProducts.map((product, index) => (
           <motion.div
             key={product._id}
             initial={{ opacity: 0, y: 40 }}
@@ -77,13 +95,9 @@ const AllProducts = () => {
                 Category: {product.category}
               </p>
 
-              <p className="font-bold text-primary">
-                ৳{product.price}
-              </p>
+              <p className="font-bold text-primary">৳{product.price}</p>
 
-              <p className="text-sm">
-                Available: {product.availableQuantity}
-              </p>
+              <p className="text-sm">Available: {product.availableQuantity}</p>
 
               <button
                 onClick={() => navigate(`/products/${product._id}`)}
@@ -98,9 +112,26 @@ const AllProducts = () => {
 
       {/* No Result */}
       {filteredProducts.length === 0 && (
-        <p className="text-center text-gray-500 mt-10">
-          No products found 
-        </p>
+        <p className="text-center text-gray-500 mt-10">No products found</p>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-10 gap-2">
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              onClick={() => setCurrentPage(page)}
+              className={`px-4 py-2 border rounded ${
+                currentPage === page
+                  ? "bg-primary text-white border-primary"
+                  : "bg-white text-gray-700"
+              }`}
+            >
+              {page}
+            </button>
+          ))}
+        </div>
       )}
     </div>
   );

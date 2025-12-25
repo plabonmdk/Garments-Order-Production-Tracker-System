@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-
 import { useState } from "react";
 import Swal from "sweetalert2";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
@@ -23,6 +22,7 @@ const ApprovedOrders = () => {
     dateTime: new Date().toISOString().slice(0, 16),
   });
 
+  // Fetch approved orders
   const { data: orders = [], refetch } = useQuery({
     queryKey: ["approved-orders"],
     queryFn: async () => {
@@ -36,34 +36,50 @@ const ApprovedOrders = () => {
   };
 
   const handleAddTracking = async (orderId) => {
-    const res = await axiosSecure.post(
-      `/orders/tracking/${orderId}`,
-      trackingData
-    );
-    if (res.data.modifiedCount > 0) {
-      Swal.fire("Success", "Tracking info added", "success");
-      setModalOrder(null);
-      refetch();
+    try {
+      const res = await axiosSecure.post(`/orders/tracking/${orderId}`, trackingData);
+      if (res.data.modifiedCount > 0) {
+        Swal.fire("Success", "Tracking info added", "success");
+        setModalOrder(null);
+        setTrackingData({
+          status: "",
+          location: "",
+          note: "",
+          dateTime: new Date().toISOString().slice(0, 16),
+        });
+        refetch();
+      }
+    } catch (err) {
+      Swal.fire("Error", "Failed to add tracking info", "error");
     }
   };
 
   const handleViewTracking = async (orderId) => {
-    const res = await axiosSecure.get(`/orders/tracking/${orderId}`);
-    const history = res.data;
+    try {
+      const res = await axiosSecure.get(`/orders/tracking/${orderId}`);
+      const history = res.data;
 
-    Swal.fire({
-      title: "Tracking History",
-      html: history
-        .map(
-          (t) =>
-            `<p><b>${t.status}</b> at ${t.location} on ${new Date(
-              t.dateTime
-            ).toLocaleString()}<br/>Note: ${t.note}</p>`
-        )
-        .join("<hr/>"),
-      width: 500,
-      showCloseButton: true,
-    });
+      if (!history.length) {
+        Swal.fire("No Tracking History", "No tracking info available yet.", "info");
+        return;
+      }
+
+      Swal.fire({
+        title: "Tracking History",
+        html: history
+          .map(
+            (t) =>
+              `<p><b>${t.status}</b> at ${t.location} on ${new Date(
+                t.dateTime
+              ).toLocaleString()}<br/>Note: ${t.note || "N/A"}</p>`
+          )
+          .join("<hr/>"),
+        width: 500,
+        showCloseButton: true,
+      });
+    } catch (err) {
+      Swal.fire("Error", "Failed to fetch tracking history", "error");
+    }
   };
 
   return (
@@ -71,7 +87,7 @@ const ApprovedOrders = () => {
       <h2 className="text-xl font-bold mb-4">Approved Orders</h2>
 
       <div className="overflow-x-auto">
-        <table className="table table-zebra">
+        <table className="table table-zebra w-full">
           <thead>
             <tr>
               <th>Order ID</th>
@@ -82,26 +98,24 @@ const ApprovedOrders = () => {
               <th>Actions</th>
             </tr>
           </thead>
-
           <tbody>
-            {orders.map((o) => (
-              <tr key={o._id}>
-                <td>{o._id.slice(0, 6)}...</td>
-                <td>{o.userName}</td>
-                <td>{o.productName}</td>
-                <td>{o.quantity}</td>
-                <td>{new Date(o.approvedAt).toLocaleDateString()}</td>
+            {orders.map((order) => (
+              <tr key={order._id}>
+                <td>{order._id.slice(0, 6)}...</td>
+                <td>{order.firstName}</td>
+                <td>{order.productTitle}</td>
+                <td>{order.orderQuantity}</td>
+                <td>{new Date(order.createdAt).toLocaleDateString()}</td>
                 <td className="flex gap-2">
                   <button
                     className="btn btn-xs btn-info"
-                    onClick={() => handleViewTracking(o._id)}
+                    onClick={() => handleViewTracking(order._id)}
                   >
                     View Tracking
                   </button>
-
                   <button
                     className="btn btn-xs btn-success"
-                    onClick={() => setModalOrder(o)}
+                    onClick={() => setModalOrder(order)}
                   >
                     Add Tracking
                   </button>
@@ -127,9 +141,9 @@ const ApprovedOrders = () => {
               className="select select-bordered w-full mb-2"
             >
               <option value="">Select Status</option>
-              {statuses.map((s) => (
-                <option key={s} value={s}>
-                  {s}
+              {statuses.map((status) => (
+                <option key={status} value={status}>
+                  {status}
                 </option>
               ))}
             </select>
@@ -149,7 +163,7 @@ const ApprovedOrders = () => {
               onChange={handleTrackingChange}
               placeholder="Note (optional)"
               className="textarea textarea-bordered w-full mb-2"
-            ></textarea>
+            />
 
             <input
               type="datetime-local"
@@ -160,13 +174,9 @@ const ApprovedOrders = () => {
             />
 
             <div className="flex justify-end gap-2 mt-2">
-              <button
-                className="btn btn-secondary"
-                onClick={() => setModalOrder(null)}
-              >
+              <button className="btn btn-secondary" onClick={() => setModalOrder(null)}>
                 Cancel
               </button>
-
               <button
                 className="btn btn-primary"
                 onClick={() => handleAddTracking(modalOrder._id)}

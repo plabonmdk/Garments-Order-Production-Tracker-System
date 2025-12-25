@@ -4,48 +4,83 @@ import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import useAuth from "../../Hooks/useAuth";
 import { useState } from "react";
 
-
 const AddProduct = () => {
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
   const { register, handleSubmit, reset } = useForm();
   const [preview, setPreview] = useState([]);
 
-  
-
+  // Preview images locally before upload
   const handleImagePreview = (e) => {
     const files = Array.from(e.target.files);
     const urls = files.map((file) => URL.createObjectURL(file));
     setPreview(urls);
   };
 
+  // Upload single image to ImgBB
+  const uploadImage = async (file) => {
+    const formData = new FormData();
+    formData.append("image", file); // ImgBB expects "image" field
+
+    const apiKey = import.meta.env.VITE_IMAGE_HOST; // Your ImgBB API key
+
+    const res = await fetch(
+      `https://api.imgbb.com/1/upload?key=${apiKey}`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+
+    const data = await res.json();
+
+    if (data.success) {
+      return data.data.url; // This is the image URL to store in DB
+    } else {
+      throw new Error("Failed to upload image to ImgBB");
+    }
+  };
+
   const onSubmit = async (data) => {
-    console.log(data)
-    const images = Array.from(data.images).map((file) => file.name);
+    try {
+      // Upload all images to ImgBB
+      const imageUrls = await Promise.all(
+        Array.from(data.images).map((file) => uploadImage(file))
+      );
 
-    const product = {
-      name: data.name,
-      description: data.description,
-      category: data.category,
-      price: Number(data.price),
-      availableQty: Number(data.availableQty),
-      moq: Number(data.moq),
-      images,
-      demoVideo: data.demoVideo,
-      paymentOption: data.paymentOption,
-      showOnHome: data.showOnHome || false,
-      createdBy: {
-        name: user.displayName,
-        email: user.email,
-      },
-    };
+      const product = {
+        title: data.name,
+        description: data.description,
+        category: data.category,
+        price: Number(data.price),
+        availableQuantity: Number(data.availableQty),
+        minimumOrder: Number(data.moq),
+        paymentOptions: data.paymentOption ? [data.paymentOption] : [],
+        media: {
+          images: imageUrls, // store ImgBB URLs
+          demoVideo: data.demoVideo || "",
+        },
+        showOnHome: data.showOnHome || false,
+        createdBy: {
+          name: user.displayName,
+          email: user.email,
+        },
+      };
 
-    const res = await axiosSecure.post(`${import.meta.env.VITE_API_URL}/products` , product);
+      // Save product in backend
+      const res = await axiosSecure.post(
+        `${import.meta.env.VITE_API_URL}/products`,
+        product
+      );
 
-    if (res.data.insertedId) {
-      Swal.fire("Success!", "Product added successfully", "success");
-      reset();
-      setPreview([]);
+      if (res.data.insertedId) {
+        Swal.fire("Success!", "Product added successfully", "success");
+        reset();
+        setPreview([]);
+      }
+    } catch (err) {
+      console.error(err);
+      Swal.fire("Error!", "Failed to add product", "error");
     }
   };
 
@@ -87,7 +122,7 @@ const AddProduct = () => {
         <input
           type="number"
           {...register("availableQty", { required: true })}
-          placeholder=" Quantity"
+          placeholder="Quantity"
           className="input input-bordered w-full"
         />
 
@@ -114,6 +149,7 @@ const AddProduct = () => {
               key={idx}
               src={img}
               className="h-20 object-cover rounded"
+              alt={`Preview ${idx}`}
             />
           ))}
         </div>
@@ -124,15 +160,6 @@ const AddProduct = () => {
           className="input input-bordered w-full"
         />
 
-        {/* <select
-          {...register("paymentOption", { required: true })}
-          className="select select-bordered w-full"
-        >
-          <option value="">Payment Option</option>
-          <option value="COD">Cash on Delivery</option>
-          <option value="PayFirst">PayFirst</option>
-        </select> */}
-
         <label className="flex items-center gap-2">
           <input
             type="checkbox"
@@ -142,9 +169,7 @@ const AddProduct = () => {
           Show on Home Page
         </label>
 
-        <button className="btn btn-primary w-full">
-          Add Product
-        </button>
+        <button className="btn btn-primary w-full">Add Product</button>
       </form>
     </div>
   );

@@ -4,6 +4,7 @@ import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import { useNavigate } from "react-router";
 import useAuth from "../../Hooks/useAuth";
 import Swal from "sweetalert2";
+import Loading from "../../shared/Loading";
 
 const MyOrders = () => {
   const axiosSecure = useAxiosSecure();
@@ -11,7 +12,11 @@ const MyOrders = () => {
   const { user } = useAuth();
   const [processingOrderId, setProcessingOrderId] = useState(null);
 
-  const { data: orders = [], refetch } = useQuery({
+  const {
+    data: orders = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["my-orders", user?.email],
     enabled: !!user?.email,
     queryFn: async () => {
@@ -19,6 +24,10 @@ const MyOrders = () => {
       return res.data;
     },
   });
+
+  if (isLoading) {
+    return <Loading></Loading>;
+  }
 
   const handleCancel = async (orderId) => {
     const result = await Swal.fire({
@@ -38,26 +47,30 @@ const MyOrders = () => {
   };
 
   const handlePayment = async (order) => {
-    if (!order) return;
-
     setProcessingOrderId(order._id);
 
-    const paymentInfo = {
-      totalPrice: order.totalPrice,
-      productName: order.productTitle,
-      orderId: order._id,
-    };
-
     try {
-      const res = await axiosSecure.post("/create-checkout-session", paymentInfo);
+      const res = await axiosSecure.post("/create-checkout-session", {
+        orderId: order._id,
+        productId: order.productId,
+        name: order.productTitle,
+        description: `Order for ${order.productTitle}`,
+        image: order.productImage,
+        totalPrice: order.totalPrice,
+        quantity: order.orderQuantity,
+        customer: {
+          email: user.email,
+          name: user.displayName,
+        },
+      });
+
       if (res.data?.url) {
-        window.location.href = res.data.url;
+        window.location.replace(res.data.url);
       } else {
-        throw new Error("No checkout URL returned");
+        Swal.fire("Error", "Checkout URL not found", "error");
       }
-    } catch (error) {
-      console.error("Payment error:", error);
-      Swal.fire("Error", "Payment could not be processed.", "error");
+    } catch (err) {
+      Swal.fire("Error", "Payment failed", "error");
     } finally {
       setProcessingOrderId(null);
     }
@@ -73,7 +86,7 @@ const MyOrders = () => {
             <tr>
               <th>Order ID</th>
               <th>Product</th>
-              <th>Quantity</th>
+              <th>Qty</th>
               <th>Status</th>
               <th>Payment</th>
               <th>Actions</th>
@@ -83,24 +96,30 @@ const MyOrders = () => {
           <tbody>
             {orders.map((o) => (
               <tr key={o._id}>
-                <td>{o._id.slice(0, 6)}...</td>
+                <td title={o._id}>{o._id.slice(0, 6)}...</td>
                 <td>{o.productTitle}</td>
                 <td>{o.orderQuantity}</td>
-                <td>{o.status}</td>
                 <td>
-                  {/* Show Pay button only if order is pending and not paid */}
-                  {o.paid ? (
+                  <span
+                    className={`badge ${
+                      o.status === "paid" ? "badge-success" : "badge-warning"
+                    }`}
+                  >
+                    {o.status}
+                  </span>
+                </td>
+
+                <td>
+                  {o.status === "paid" ? (
                     <span className="text-green-600 font-semibold">Paid</span>
-                  ) : o.status === "pending" ? (
+                  ) : (
                     <button
                       className="btn btn-xs btn-success"
-                      onClick={() => handlePayment(o)}
                       disabled={processingOrderId === o._id}
+                      onClick={() => handlePayment(o)}
                     >
                       {processingOrderId === o._id ? "Processing..." : "Pay"}
                     </button>
-                  ) : (
-                    "-"
                   )}
                 </td>
 
@@ -112,7 +131,7 @@ const MyOrders = () => {
                     View
                   </button>
 
-                  {o.status === "pending" && !o.paid && (
+                  {o.status === "pending" && (
                     <button
                       className="btn btn-xs btn-error"
                       onClick={() => handleCancel(o._id)}
