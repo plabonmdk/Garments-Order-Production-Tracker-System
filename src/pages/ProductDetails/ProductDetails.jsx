@@ -18,7 +18,7 @@ const ProductDetails = () => {
   } = useQuery({
     queryKey: ["product", id],
     queryFn: async () => {
-      const res = await axiosSecure.get( `/products/${id}`
+      const res = await axiosSecure.get( `${import.meta.env.VITE_API_URL}/products/${id}`
       );
       console.log("PRODUCT API RESPONSE:", res.data);
       return res.data;

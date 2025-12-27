@@ -15,7 +15,7 @@ const AllProducts = () => {
   const { data: products = [], isLoading } = useQuery({
     queryKey: ["allProducts"],
     queryFn: async () => {
-      const res = await axiosSecure.get("/products");
+      const res = await axiosSecure.get(`${import.meta.env.VITE_API_URL}/products`);
       return res.data;
     },
   });

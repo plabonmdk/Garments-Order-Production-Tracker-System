@@ -12,7 +12,7 @@ const UsersManagement = () => {
   const { refetch, data: users = [] } = useQuery({
     queryKey: ["users" , searchText],
     queryFn: async () => {
-      const res = await axiosSecure.get(`/users?searchText=${searchText}`);
+      const res = await axiosSecure.get(`${import.meta.env.VITE_API_URL}/users?searchText=${searchText}`);
       return res.data;
     },
   });
@@ -35,7 +35,7 @@ const UsersManagement = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         axiosSecure
-          .patch(`/users/${user._id}/role`, { role: newRole })
+          .patch(`${import.meta.env.VITE_API_URL}/users/${user._id}/role`, { role: newRole })
           .then((res) => {
             if (res.data.modifiedCount) {
               refetch();

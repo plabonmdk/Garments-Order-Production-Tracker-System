@@ -18,7 +18,7 @@ const OrderForm = () => {
   const { data: product = {}, isLoading, refetch } = useQuery({
     queryKey: ["product", id],
     queryFn: async () => {
-      const res = await axiosSecure.get(`/products/${id}`);
+      const res = await axiosSecure.get(`${import.meta.env.VITE_API_URL}/products/${id}`);
       return res.data;
     },
   });
@@ -53,7 +53,7 @@ const OrderForm = () => {
     };
 
     try {
-      const res = await axiosSecure.post("/orders", orderData);
+      const res = await axiosSecure.post(`${import.meta.env.VITE_API_URL}/orders`, orderData);
 
       // Refetch product data after order placed
       await refetch();

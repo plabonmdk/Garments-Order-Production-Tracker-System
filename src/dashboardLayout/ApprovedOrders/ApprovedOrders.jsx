@@ -22,11 +22,10 @@ const ApprovedOrders = () => {
     dateTime: new Date().toISOString().slice(0, 16),
   });
 
-  // Fetch approved orders
   const { data: orders = [], refetch } = useQuery({
     queryKey: ["approved-orders"],
     queryFn: async () => {
-      const res = await axiosSecure.get("/orders/approved");
+      const res = await axiosSecure.get(`${import.meta.env.VITE_API_URL}/orders/approved`);
       return res.data;
     },
   });
@@ -37,7 +36,7 @@ const ApprovedOrders = () => {
 
   const handleAddTracking = async (orderId) => {
     try {
-      const res = await axiosSecure.post(`/orders/tracking/${orderId}`, trackingData);
+      const res = await axiosSecure.post(`${import.meta.env.VITE_API_URL}/orders/tracking/${orderId}`, trackingData);
       if (res.data.modifiedCount > 0) {
         Swal.fire("Success", "Tracking info added", "success");
         setModalOrder(null);
@@ -56,7 +55,7 @@ const ApprovedOrders = () => {
 
   const handleViewTracking = async (orderId) => {
     try {
-      const res = await axiosSecure.get(`/orders/tracking/${orderId}`);
+      const res = await axiosSecure.get(`${import.meta.env.VITE_API_URL}/orders/tracking/${orderId}`);
       const history = res.data;
 
       if (!history.length) {
@@ -131,7 +130,7 @@ const ApprovedOrders = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded w-96">
             <h3 className="text-lg font-bold mb-4">
-              Add Tracking for {modalOrder.productName}
+              Add Tracking for {modalOrder.productTitle}
             </h3>
 
             <select

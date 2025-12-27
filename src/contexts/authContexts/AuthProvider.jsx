@@ -11,6 +11,7 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { auth } from "../../firebase/Firebase.init";
+import { data } from "react-router";
 
 const AuthProvider = ({ children }) => {
   const googleProvider = new GoogleAuthProvider();
@@ -18,50 +19,65 @@ const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // ✅ Register
+  //  Register
   const registerUser = (email, password) => {
     setLoading(true);
     return createUserWithEmailAndPassword(auth, email, password);
   };
 
-  // ✅ Login
+  //  Login
   const signInUser = (email, password) => {
     setLoading(true);
     return signInWithEmailAndPassword(auth, email, password);
   };
 
-  // ✅ Google Login
+  //  Google Login
   const signInGoogle = () => {
     setLoading(true);
     return signInWithPopup(auth, googleProvider);
   };
 
-  // ✅ Update Profile
+  //  Update Profile
   const updateUserProfile = (profile) => {
     return updateProfile(auth.currentUser, profile);
   };
 
-  // ✅ Reset Password
+  // Reset Password
   const resetPassword = (email) => {
     return sendPasswordResetEmail(auth, email);
   };
 
-  // ✅ Logout
+  //  Logout
   const logOut = () => {
     setLoading(true);
     return signOut(auth);
   };
 
-  // ✅ Auth Observer
+  //  Auth Observer
   useEffect(() => {
-    const unSubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-      console.log("Current User:", currentUser);
-    });
+  const unSubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    setUser(currentUser);
+    if (currentUser?.email) {
+      const loggedUser = { email: currentUser.email };
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/getToken`, {
+          method: "POST",
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(loggedUser),
+        });
+        const data = await res.json();
+        console.log(data)
+        localStorage.setItem("access-token", data.token);
+      } catch (error) {
+        console.error("Token fetch failed:", error);
+      }
+    }
+    setLoading(false);
+    console.log("Current User:", currentUser);
+  });
 
-    return () => unSubscribe();
-  }, []);
+  return () => unSubscribe();
+}, []);
 
   const authInfo = {
     user,

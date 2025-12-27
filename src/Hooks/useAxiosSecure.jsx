@@ -1,14 +1,14 @@
-import axios from 'axios';
-import { useEffect } from 'react';
-import useAuth from './useAuth';
-import { useNavigate } from 'react-router';
+import axios from "axios";
+import { useEffect } from "react";
+import useAuth from "./useAuth";
+import { useNavigate } from "react-router";
 
 const axiosSecure = axios.create({
-  baseURL: 'http://localhost:3000',
+  baseURL: import.meta.env.VITE_API_URL,
 });
 
 const useAxiosSecure = () => {
-  const { user, logOut } = useAuth();
+  const { user, logout } = useAuth(); 
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,16 +23,16 @@ const useAxiosSecure = () => {
       (error) => Promise.reject(error)
     );
 
-    // RESPONSE INTERCEPTOR (IMPORTANT FIX)
+    // RESPONSE INTERCEPTOR → AUTO LOGOUT
     const resInterceptor = axiosSecure.interceptors.response.use(
       (response) => response,
       async (error) => {
         const statusCode = error?.response?.status;
 
-        // if (statusCode === 401 || statusCode === 403) {
-        //   await logOut();
-        //   navigate('/login');
-        // }
+        if (statusCode === 401 || statusCode === 403) {
+          await logout();          
+          navigate("/login");     
+        }
 
         return Promise.reject(error);
       }
@@ -42,7 +42,7 @@ const useAxiosSecure = () => {
       axiosSecure.interceptors.request.eject(reqInterceptor);
       axiosSecure.interceptors.response.eject(resInterceptor);
     };
-  }, [user, logOut, navigate]);
+  }, [user, logout, navigate]);
 
   return axiosSecure;
 };

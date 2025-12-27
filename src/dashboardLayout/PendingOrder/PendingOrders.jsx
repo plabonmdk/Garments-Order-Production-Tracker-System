@@ -5,32 +5,60 @@ import useAxiosSecure from "../../Hooks/useAxiosSecure";
 
 const PendingOrders = () => {
   const axiosSecure = useAxiosSecure();
-  const [selectedOrder, setSelectedOrder] = useState(null); // for modal
+  const [selectedOrder, setSelectedOrder] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [ordersData, setOrdersData] = useState([]);
 
   const { data: orders = [], refetch } = useQuery({
     queryKey: ["pending-orders"],
     queryFn: async () => {
-      const res = await axiosSecure.get("/orders/pending");
+      const res = await axiosSecure.get(`${import.meta.env.VITE_API_URL}/orders/pending`);
+      setOrdersData(res.data);
       return res.data;
     },
   });
 
+  const updateOrderStatus = (id, status) => {
+    setOrdersData((prev) =>
+      prev.map((o) =>
+        o._id === id
+          ? {
+              ...o,
+              status,
+            }
+          : o
+      )
+    );
+    if (selectedOrder && selectedOrder._id === id) {
+      setSelectedOrder((prev) => ({ ...prev, status }));
+    }
+  };
+
   const handleApprove = async (id) => {
-    const res = await axiosSecure.patch(`/orders/approve/${id}`);
-    if (res.data.modifiedCount > 0) {
-      Swal.fire("Success", "Order approved", "success");
-      refetch();
-      setModalOpen(false);
+    try {
+      const res = await axiosSecure.patch(`${import.meta.env.VITE_API_URL}/orders/approve/${id}`);
+      if (res.data.modifiedCount > 0) {
+        Swal.fire("Success", "Order approved", "success");
+        updateOrderStatus(id, "approved");
+        setModalOpen(false);
+      }
+    } catch (err) {
+      console.error(err);
+      Swal.fire("Error", "Failed to approve order", "error");
     }
   };
 
   const handleReject = async (id) => {
-    const res = await axiosSecure.patch(`/orders/reject/${id}`);
-    if (res.data.modifiedCount > 0) {
-      Swal.fire("Success", "Order rejected", "success");
-      refetch();
-      setModalOpen(false);
+    try {
+      const res = await axiosSecure.patch(`${import.meta.env.VITE_API_URL}/orders/reject/${id}`);
+      if (res.data.modifiedCount > 0) {
+        Swal.fire("Success", "Order rejected", "success");
+        updateOrderStatus(id, "rejected");
+        setModalOpen(false);
+      }
+    } catch (err) {
+      console.error(err);
+      Swal.fire("Error", "Failed to reject order", "error");
     }
   };
 
@@ -55,9 +83,8 @@ const PendingOrders = () => {
               <th>Actions</th>
             </tr>
           </thead>
-
           <tbody>
-            {orders.map((o) => (
+            {ordersData.map((o) => (
               <tr key={o._id}>
                 <td>{o._id.slice(0, 6)}...</td>
                 <td>{o.firstName}</td>
@@ -65,31 +92,27 @@ const PendingOrders = () => {
                 <td>{o.orderQuantity}</td>
                 <td>{new Date(o.createdAt).toLocaleDateString()}</td>
                 <td className="flex gap-2">
-                  <button
-                    onClick={() => openModal(o)}
-                    className="btn btn-xs btn-info"
-                  >
+                  <button onClick={() => openModal(o)} className="btn btn-xs btn-info">
                     View
                   </button>
-
                   <button
                     onClick={() => handleApprove(o._id)}
-                    className="btn btn-xs btn-success"
+                    className={`btn btn-xs btn-success ${o.status === "approved" ? "btn-disabled" : ""}`}
+                    disabled={o.status === "approved"}
                   >
-                    Approve
+                    {o.status === "approved" ? "Approved" : "Approve"}
                   </button>
-
                   <button
                     onClick={() => handleReject(o._id)}
-                    className="btn btn-xs btn-error"
+                    className={`btn btn-xs btn-error ${o.status === "rejected" ? "btn-disabled" : ""}`}
+                    disabled={o.status === "rejected"}
                   >
-                    Reject
+                    {o.status === "rejected" ? "Rejected" : "Reject"}
                   </button>
                 </td>
               </tr>
             ))}
-
-            {orders.length === 0 && (
+            {ordersData.length === 0 && (
               <tr>
                 <td colSpan="6" className="text-center py-6">
                   No pending orders
@@ -118,26 +141,25 @@ const PendingOrders = () => {
               <p><strong>Product:</strong> {selectedOrder.productTitle}</p>
               <p><strong>Quantity:</strong> {selectedOrder.orderQuantity}</p>
               <p><strong>Order Date:</strong> {new Date(selectedOrder.createdAt).toLocaleDateString()}</p>
-              <p><strong>Status:</strong> {selectedOrder.status || "Pending"}</p>
+              <p><strong>Status:</strong> {selectedOrder.status}</p>
             </div>
 
             <div className="modal-action">
               <button
                 onClick={() => handleApprove(selectedOrder._id)}
                 className="btn btn-success"
+                disabled={selectedOrder.status === "approved"}
               >
-                Approve
+                {selectedOrder.status === "approved" ? "Approved" : "Approve"}
               </button>
               <button
                 onClick={() => handleReject(selectedOrder._id)}
                 className="btn btn-error"
+                disabled={selectedOrder.status === "rejected"}
               >
-                Reject
+                {selectedOrder.status === "rejected" ? "Rejected" : "Reject"}
               </button>
-              <button
-                onClick={() => setModalOpen(false)}
-                className="btn"
-              >
+              <button onClick={() => setModalOpen(false)} className="btn">
                 Close
               </button>
             </div>

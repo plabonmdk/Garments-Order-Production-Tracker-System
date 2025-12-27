@@ -97,9 +97,9 @@ const Navbar = () => {
         </div>
 
         {/* Logo */}
-        <Link to="/" className="ml-2">
+       
           <Logo />
-        </Link>
+        
       </div>
 
       {/* CENTER */}

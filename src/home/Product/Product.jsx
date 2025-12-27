@@ -11,7 +11,8 @@ const Product = () => {
   const { data: products = [], isLoading, isError } = useQuery({
     queryKey: ['specialProducts', 6],
     queryFn: async () => {
-      const res = await axios.get(`${import.meta.env.VITE_API_UR}/products/special`);
+      // const res = await axios.get(`${import.meta.env.VITE_API_UR}/products/special`);
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/products/special`);
       // Ensure we always return an array
       return Array.isArray(res.data) ? res.data : res.data.products || [];
     },

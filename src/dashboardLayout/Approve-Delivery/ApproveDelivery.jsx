@@ -22,7 +22,7 @@ const ApproveDelivery = () => {
       email: rider.Email,
     };
 
-    axiosSecure.patch(`/delivery/${rider._id}`, updateInfo).then((res) => {
+    axiosSecure.patch(`${import.meta.env.VITE_API_URL}/delivery/${rider._id}`, updateInfo).then((res) => {
       console.log(res.data)
       if (res.data.deliveryUpdate.modifiedCount > 0) {
         refetch();
@@ -56,7 +56,7 @@ const ApproveDelivery = () => {
       confirmButtonText: "Yes, delete it!",
     }).then((result) => {
       if (result.isConfirmed) {
-        axiosSecure.delete(`/delivery/${rider._id}`).then((res) => {
+        axiosSecure.delete(`${import.meta.env.VITE_API_URL}/delivery/${rider._id}`).then((res) => {
           if (res.data.deletedCount > 0) {
             refetch();
             Swal.fire({

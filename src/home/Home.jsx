@@ -3,6 +3,7 @@ import Banner from './banner/Banner';
 import Brands from './brands/Brands';
 import Reviews from './reviews/Reviews';
 import Product from './Product/Product';
+import Works from './Works/Works';
 
 
 
@@ -14,6 +15,7 @@ const Home = () => {
            <Product></Product>
            <Reviews></Reviews>
            <Brands></Brands>
+           <Works></Works>
            
         </div>
     );

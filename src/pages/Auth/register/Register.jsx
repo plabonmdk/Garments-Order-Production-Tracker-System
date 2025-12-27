@@ -56,7 +56,7 @@ const Register = () => {
         photoURL,
       };
 
-      await axiosSecure.post("/users", userInfo);
+      await axiosSecure.post(`${import.meta.env.VITE_API_URL}/users`, userInfo);
 
       //  Success alert
       Swal.fire({

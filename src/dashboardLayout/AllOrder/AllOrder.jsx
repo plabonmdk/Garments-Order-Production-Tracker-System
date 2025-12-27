@@ -12,7 +12,7 @@ const AllOrders = () => {
   const { data: orders = [], isLoading, refetch } = useQuery({
     queryKey: ["all-orders", status],
     queryFn: async () => {
-      const res = await axiosSecure.get(`/orders/all?status=${status}`);
+      const res = await axiosSecure.get(`${import.meta.env.VITE_API_URL}/orders/all?status=${status}`);
       return res.data;
     },
   });
@@ -22,7 +22,7 @@ const AllOrders = () => {
   // Handle status update
   const handleStatusChange = async (orderId, newStatus) => {
     try {
-      await axiosSecure.patch(`/orders/${newStatus}/${orderId}`);
+      await axiosSecure.patch(`${import.meta.env.VITE_API_URL}/orders/${newStatus}/${orderId}`);
       refetch();
       setSelectedOrder(null);
     } catch (err) {

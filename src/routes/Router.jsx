@@ -33,6 +33,7 @@ import Payment from "../dashboardLayout/Payment/Payment";
 import PaymentCancelled from "../dashboardLayout/Payment/paymentCancelled";
 import PaymentSuccess from "../dashboardLayout/Payment/PaymentSuccess";
 import OrderDetails from "../dashboardLayout/orderDetails/OrderDetails";
+import Error from "../shared/Error";
 
 export const router = createBrowserRouter([
   /* ================= PUBLIC ================= */
@@ -184,6 +185,6 @@ export const router = createBrowserRouter([
   /* ================= 404 ================= */
   {
     path: "*",
-    element: <h2 className="text-center mt-20">404 | Page Not Found</h2>,
+    element: <Error></Error>,
   },
 ]);

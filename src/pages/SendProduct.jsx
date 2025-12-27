@@ -72,7 +72,7 @@ const SendProduct = () => {
         };
 
         axiosSecure
-          .post("/products", productData)
+          .post(`${import.meta.env.VITE_API_URL}/products`, productData)
           .then((res) => {
             console.log("Product saved:", res.data);
             if (res.data.insertedId) {

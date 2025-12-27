@@ -5,12 +5,14 @@ import axios from "axios";
 
 const AdminAllProducts = () => {
   const axiosSecure = useAxiosSecure();
+
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Modal states
+  // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+
   const [updatedData, setUpdatedData] = useState({
     title: "",
     price: "",
@@ -19,10 +21,11 @@ const AdminAllProducts = () => {
     showOnHome: false,
   });
 
+  // ---------------- Fetch Products ----------------
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const res = await axiosSecure.get("/admin/products");
+      const res = await axiosSecure.get(`${import.meta.env.VITE_API_URL}/admin/products`);
       setProducts(res.data);
     } catch (err) {
       console.error(err);
@@ -31,12 +34,12 @@ const AdminAllProducts = () => {
       setLoading(false);
     }
   };
-
+console.log(products)
   useEffect(() => {
     fetchProducts();
   }, []);
 
-  // Delete product
+  // ---------------- Delete Product ----------------
   const handleDelete = async (id) => {
     const confirm = await Swal.fire({
       title: "Are you sure?",
@@ -46,22 +49,24 @@ const AdminAllProducts = () => {
       confirmButtonText: "Yes, delete it!",
     });
 
-    if (confirm.isConfirmed) {
-      try {
-        await axiosSecure.delete(`/admin/products/${id}`);
-        Swal.fire("Deleted!", "Product has been deleted.", "success");
-        fetchProducts();
-      } catch (err) {
-        console.error(err);
-        Swal.fire("Error", "Failed to delete product", "error");
-      }
+    if (!confirm.isConfirmed) return;
+
+    try {
+      await axiosSecure.delete(`${import.meta.env.VITE_API_URL}/admin/products/${id}`);
+      Swal.fire("Deleted!", "Product has been deleted.", "success");
+      fetchProducts();
+    } catch (err) {
+      console.error(err);
+      Swal.fire("Error", "Failed to delete product", "error");
     }
   };
 
-  // Toggle "show on home"
+  // ---------------- Toggle Show on Home ----------------
   const handleToggleShow = async (id, showOnHome) => {
     try {
-      await axiosSecure.patch(`/admin/products/${id}`, { showOnHome: !showOnHome });
+      await axiosSecure.patch(`${import.meta.env.VITE_API_URL}/admin/products/${id}`, {
+        showOnHome: !showOnHome,
+      });
       fetchProducts();
     } catch (err) {
       console.error(err);
@@ -69,29 +74,37 @@ const AdminAllProducts = () => {
     }
   };
 
-  // Open modal for update
+  // ---------------- Open Update Modal ----------------
   const openUpdateModal = (product) => {
     setSelectedProduct(product);
     setUpdatedData({
-      title: product.title,
-      price: product.price,
-      category: product.category,
-      image: product.image,
+      title: product.title || "",
+      price: product.price || "",
+      category: product.category || "",
+      image: product.media?.image || "",
       showOnHome: product.showOnHome || false,
     });
     setIsModalOpen(true);
   };
 
-  // Handle image upload to imgbb
+  // ---------------- Image Upload ----------------
   const handleImageUpload = async (file) => {
+    if (!file) return;
+
     const formData = new FormData();
     formData.append("image", file);
+
     try {
       const res = await axios.post(
         `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_IMAGE_HOST}`,
         formData
       );
-      setUpdatedData((prev) => ({ ...prev, image: res.data.data.url }));
+
+      setUpdatedData((prev) => ({
+        ...prev,
+        image: res.data.data.url,
+      }));
+
       Swal.fire("Success", "Image uploaded successfully!", "success");
     } catch (err) {
       console.error(err);
@@ -99,24 +112,48 @@ const AdminAllProducts = () => {
     }
   };
 
-  // Submit update
+  // ---------------- Update Product ----------------
   const handleUpdate = async () => {
+    if (!selectedProduct) return;
+
     try {
-      await axiosSecure.patch(`/admin/products/${selectedProduct._id}`, updatedData);
-      Swal.fire("Updated!", "Product updated successfully.", "success");
-      setIsModalOpen(false);
-      fetchProducts();
+      const payload = {
+        title: updatedData.title,
+        price: Number(updatedData.price),
+        category: updatedData.category,
+        showOnHome: updatedData.showOnHome,
+        media: {
+          image: updatedData.image,
+        },
+      };
+
+      const res = await axiosSecure.patch(
+        `/admin/products/${selectedProduct._id}`,
+        payload
+      );
+
+      if (res.data.modifiedCount > 0) {
+        Swal.fire("Updated!", "Product updated successfully.", "success");
+        setIsModalOpen(false);
+        fetchProducts();
+      } else {
+        Swal.fire("Info", "No changes were made.", "info");
+      }
     } catch (err) {
       console.error(err);
       Swal.fire("Error", "Failed to update product", "error");
     }
   };
 
-  if (loading) return <p className="text-center mt-10">Loading products...</p>;
+  if (loading) {
+    return <p className="text-center mt-10">Loading products...</p>;
+  }
 
+  // ---------------- UI ----------------
   return (
     <div className="p-6">
       <h2 className="text-2xl font-bold mb-4">All Products</h2>
+
       {products.length === 0 ? (
         <p>No products found.</p>
       ) : (
@@ -132,16 +169,19 @@ const AdminAllProducts = () => {
               <th>Actions</th>
             </tr>
           </thead>
+
           <tbody>
             {products.map((product) => {
               const createdByName =
-                typeof product.createdBy === "object" ? product.createdBy.name : product.createdBy;
+                typeof product.createdBy === "object"
+                  ? product.createdBy?.name
+                  : product.createdBy;
 
               return (
                 <tr key={product._id} className="text-center border-t">
                   <td>
                     <img
-                      src={product.image}
+                      src={product.media?.images}
                       alt={product.title}
                       className="w-16 h-16 object-cover mx-auto"
                     />
@@ -154,7 +194,9 @@ const AdminAllProducts = () => {
                     <input
                       type="checkbox"
                       checked={product.showOnHome || false}
-                      onChange={() => handleToggleShow(product._id, product.showOnHome)}
+                      onChange={() =>
+                        handleToggleShow(product._id, product.showOnHome)
+                      }
                     />
                   </td>
                   <td>
@@ -178,14 +220,14 @@ const AdminAllProducts = () => {
         </table>
       )}
 
-      {/* Tailwind CSS Modal */}
+      {/* ---------------- Update Modal ---------------- */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-start z-50">
+        <div className="fixed inset-0  bg-opacity-50 flex justify-center items-start z-50">
           <div className="bg-white p-6 rounded shadow mt-20 w-full max-w-lg relative">
             <h2 className="text-xl font-bold mb-4">Update Product</h2>
 
             <button
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 font-bold"
+              className="absolute top-2 right-2 text-xl font-bold"
               onClick={() => setIsModalOpen(false)}
             >
               ×
@@ -196,7 +238,9 @@ const AdminAllProducts = () => {
               <input
                 className="w-full border p-2"
                 value={updatedData.title}
-                onChange={(e) => setUpdatedData({ ...updatedData, title: e.target.value })}
+                onChange={(e) =>
+                  setUpdatedData({ ...updatedData, title: e.target.value })
+                }
               />
             </div>
 
@@ -206,7 +250,9 @@ const AdminAllProducts = () => {
                 type="number"
                 className="w-full border p-2"
                 value={updatedData.price}
-                onChange={(e) => setUpdatedData({ ...updatedData, price: e.target.value })}
+                onChange={(e) =>
+                  setUpdatedData({ ...updatedData, price: e.target.value })
+                }
               />
             </div>
 
@@ -215,13 +261,18 @@ const AdminAllProducts = () => {
               <input
                 className="w-full border p-2"
                 value={updatedData.category}
-                onChange={(e) => setUpdatedData({ ...updatedData, category: e.target.value })}
+                onChange={(e) =>
+                  setUpdatedData({ ...updatedData, category: e.target.value })
+                }
               />
             </div>
 
             <div className="mb-2">
               <label className="block mb-1">Image</label>
-              <input type="file" onChange={(e) => handleImageUpload(e.target.files[0])} />
+              <input
+                type="file"
+                onChange={(e) => handleImageUpload(e.target.files[0])}
+              />
               {updatedData.image && (
                 <img
                   src={updatedData.image}
@@ -237,7 +288,10 @@ const AdminAllProducts = () => {
                   type="checkbox"
                   checked={updatedData.showOnHome}
                   onChange={(e) =>
-                    setUpdatedData({ ...updatedData, showOnHome: e.target.checked })
+                    setUpdatedData({
+                      ...updatedData,
+                      showOnHome: e.target.checked,
+                    })
                   }
                 />{" "}
                 Show on Home

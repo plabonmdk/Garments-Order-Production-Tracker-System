@@ -1,40 +1,96 @@
 import React from "react";
 import Logo from "../components/logo/Logo";
+import {
+  FaFacebook,
+  FaYoutube,
+  FaTwitter,
+  FaGithub,
+  FaLinkedin,
+} from "react-icons/fa";
 
 const Footer = () => {
   return (
-    <div>
-      <footer className="footer sm:footer-horizontal bg-base-200 text-base-content p-10">
-        <aside>
-          <Logo></Logo>
-          <p>
-            ACME Industries Ltd.
-            <br />
-            Providing reliable tech since 1992
-          </p>
-        </aside>
-        <nav>
-          <h6 className="footer-title">Services</h6>
-          <a className="link link-hover">Branding</a>
-          <a className="link link-hover">Design</a>
-          <a className="link link-hover">Marketing</a>
-          <a className="link link-hover">Advertisement</a>
-        </nav>
-        <nav>
-          <h6 className="footer-title">Company</h6>
-          <a className="link link-hover">About us</a>
-          <a className="link link-hover">Contact</a>
-          <a className="link link-hover">Jobs</a>
-          <a className="link link-hover">Press kit</a>
-        </nav>
-        <nav>
-          <h6 className="footer-title">Legal</h6>
-          <a className="link link-hover">Terms of use</a>
-          <a className="link link-hover">Privacy policy</a>
-          <a className="link link-hover">Cookie policy</a>
-        </nav>
-      </footer>
-    </div>
+    <footer className="footer sm:footer-horizontal bg-base-200 text-base-content p-10">
+      <aside>
+        <Logo />
+        <p>
+          <span className="font-semibold">Plabon Garments Ltd.</span>
+          <br />
+          Quality Apparel Manufacturing Since 2018
+        </p>
+
+        {/* Social Links */}
+        <div className="flex gap-4 mt-4 text-2xl">
+          <a
+            href="https://facebook.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-blue-600"
+          >
+            <FaFacebook />
+          </a>
+
+          <a
+            href="https://youtube.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-red-600"
+          >
+            <FaYoutube />
+          </a>
+
+          <a
+            href="https://twitter.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-sky-500"
+          >
+            <FaTwitter />
+          </a>
+
+          <a
+            href="https://github.com/plabonmdk/Garments-Order-Production-Tracker-System.git"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-gray-800"
+          >
+            <FaGithub />
+          </a>
+
+          <a
+            href="https://linkedin.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-blue-700"
+          >
+            <FaLinkedin />
+          </a>
+        </div>
+      </aside>
+
+      <nav>
+        <h6 className="footer-title">Our Services</h6>
+        <a className="link link-hover">Garments Manufacturing</a>
+        <a className="link link-hover">Custom Apparel</a>
+        <a className="link link-hover">Bulk Production</a>
+        <a className="link link-hover">Export & Supply</a>
+      </nav>
+
+      <nav>
+        <h6 className="footer-title">Company</h6>
+        <a className="link link-hover">About Us</a>
+        <a className="link link-hover">Our Factory</a>
+        <a className="link link-hover">Careers</a>
+        <a className="link link-hover">Contact</a>
+      </nav>
+
+      <nav>
+        <h6 className="footer-title">Legal</h6>
+        <a className="link link-hover">Terms & Conditions</a>
+        <a className="link link-hover">Privacy Policy</a>
+        <a className="link link-hover">Compliance</a>
+      </nav>
+    </footer>
   );
 };
 

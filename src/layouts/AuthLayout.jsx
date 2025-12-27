@@ -17,7 +17,7 @@ const AuthLayout = () => {
                 className="min-h-[calc(100vh-96px)] bg-cover bg-center bg-no-repeat"
                 style={{ backgroundImage: `url(${login})` }}
             >
-                {/* overlay */}
+                
                 <div className="min-h-[calc(100vh-96px)] bg-black/40 flex items-center justify-center">
                     
                     {/* Form / Auth content */}

@@ -22,7 +22,7 @@ const MyProduct = () => {
     queryKey: ["myProduct", user?.email],
     enabled: !!user?.email,
     queryFn: async () => {
-      const res = await axiosSecure.get(`/products?email=${user.email}`);
+      const res = await axiosSecure.get(`${import.meta.env.VITE_API_URL}/products?email=${user.email}`);
       return res.data;
     },
   });

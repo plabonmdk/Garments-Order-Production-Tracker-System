@@ -12,7 +12,7 @@ const Login = () => {
     formState: { errors },
   } = useForm();
 
-  // ✅ spelling fixed
+  //  spelling fixed
   const { signInUser } = useAuth();
 
   const location = useLocation();
@@ -21,11 +21,11 @@ const Login = () => {
   const handleLogin = (data) => {
     signInUser(data.email, data.password)
       .then((result) => {
-        console.log("Login Success:", result.user);
+        // console.log("Login Success:", result.user);
         navigate(location?.state || "/");
       })
       .catch((error) => {
-        console.error("Login Error:", error.message);
+        // console.error("Login Error:", error.message);
       });
   };
 

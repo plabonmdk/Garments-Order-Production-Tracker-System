@@ -10,7 +10,7 @@ const TrackOrder = () => {
   const { data: tracking = [], isLoading } = useQuery({
     queryKey: ["track-order", orderId],
     queryFn: async () => {
-      const res = await axiosSecure.get(`/orders/tracking/${orderId}`);
+      const res = await axiosSecure.get(`${import.meta.env.VITE_API_URL}/orders/tracking/${orderId}`);
       return res.data;
     },
   });

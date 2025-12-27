@@ -8,13 +8,13 @@ const ManageUsers = () => {
   const { data: users = [], refetch } = useQuery({
     queryKey: ["users"],
     queryFn: async () => {
-      const res = await axiosSecure.get("/users");
+      const res = await axiosSecure.get(`${import.meta.env.VITE_API_URL}/users`);
       return res.data;
     },
   });
 
   const updateUser = async (id, payload) => {
-    const res = await axiosSecure.patch(`/users/${id}`, payload);
+    const res = await axiosSecure.patch(`${import.meta.env.VITE_API_URL}/users/${id}`, payload);
     if (res.data.modifiedCount > 0) {
       refetch();
       Swal.fire("Success", "User updated successfully", "success");

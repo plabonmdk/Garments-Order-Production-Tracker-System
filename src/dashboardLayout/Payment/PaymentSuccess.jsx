@@ -23,7 +23,7 @@ const PaymentSuccess = () => {
 
     const fetchPaymentInfo = async () => {
       try {
-        const res = await axiosSecure.get(`/payment-success?session_id=${sessionId}`);
+        const res = await axiosSecure.get(`${import.meta.env.VITE_API_URL}/payment-success?session_id=${sessionId}`);
         setPaymentInfo(res.data);
       } catch (err) {
         console.error("Payment success error:", err);

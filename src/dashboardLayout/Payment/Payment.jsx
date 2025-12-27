@@ -14,7 +14,7 @@ const Payment = () => {
     queryKey: ["order", orderId],
     enabled: !!orderId,
     queryFn: async () => {
-      const res = await axiosSecure.get(`/orders/${orderId}`);
+      const res = await axiosSecure.get(`${import.meta.env.VITE_API_URL}/orders/${orderId}`);
       return res.data;
     },
   });
@@ -31,7 +31,7 @@ const Payment = () => {
     };
 
     try {
-      const res = await axiosSecure.post("/create-checkout-session", paymentInfo);
+      const res = await axiosSecure.post(`${import.meta.env.VITE_API_URL}/create-checkout-session`, paymentInfo);
       window.location.href = res.data.url;
     } catch (error) {
       console.error(error);

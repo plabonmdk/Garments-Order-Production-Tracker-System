@@ -20,9 +20,9 @@ const AddProduct = () => {
   // Upload single image to ImgBB
   const uploadImage = async (file) => {
     const formData = new FormData();
-    formData.append("image", file); // ImgBB expects "image" field
+    formData.append("image", file); 
 
-    const apiKey = import.meta.env.VITE_IMAGE_HOST; // Your ImgBB API key
+    const apiKey = import.meta.env.VITE_IMAGE_HOST; 
 
     const res = await fetch(
       `https://api.imgbb.com/1/upload?key=${apiKey}`,
@@ -35,7 +35,7 @@ const AddProduct = () => {
     const data = await res.json();
 
     if (data.success) {
-      return data.data.url; // This is the image URL to store in DB
+      return data.data.url;
     } else {
       throw new Error("Failed to upload image to ImgBB");
     }
@@ -57,7 +57,7 @@ const AddProduct = () => {
         minimumOrder: Number(data.moq),
         paymentOptions: data.paymentOption ? [data.paymentOption] : [],
         media: {
-          images: imageUrls, // store ImgBB URLs
+          images: imageUrls, 
           demoVideo: data.demoVideo || "",
         },
         showOnHome: data.showOnHome || false,
