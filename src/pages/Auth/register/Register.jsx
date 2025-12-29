@@ -1,6 +1,6 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import { Link, useLocation, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import axios from "axios";
 import Swal from "sweetalert2";
 import useAuth from "../../../Hooks/useAuth";
@@ -17,13 +17,12 @@ const Register = () => {
 
   const { registerUser, updateUserProfile } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const axiosSecure = useAxiosSecure();
 
   const handleRegistration = async (data) => {
     try {
       //  Register user
-      const result = await registerUser(data.email, data.password);
+      await registerUser(data.email, data.password);
 
       //  Upload image
       const formData = new FormData();
@@ -47,18 +46,21 @@ const Register = () => {
         photoURL,
       });
 
-      //  Save user to database
+      //  Save user to DB (ROLE FIXED)
       const userInfo = {
         name: data.name,
         email: data.email,
-        role: data.role,
+        role: "buyer", // ✅ role always from backend logic
         status: "pending",
         photoURL,
       };
 
-      await axiosSecure.post(`${import.meta.env.VITE_API_URL}/users`, userInfo);
+      await axiosSecure.post(
+        `${import.meta.env.VITE_API_URL}/users`,
+        userInfo
+      );
 
-      //  Success alert
+      // 🎉 Success alert
       Swal.fire({
         icon: "success",
         title: "Registration Successful!",
@@ -138,20 +140,6 @@ const Register = () => {
               <p className="text-red-500 text-sm">Email is required</p>
             )}
 
-            {/* Role */}
-            <label className="label">Role</label>
-            <select
-              {...register("role", { required: true })}
-              className="select select-bordered w-full"
-            >
-              <option value="">Select Role</option>
-              <option value="buyer">Buyer</option>
-              <option value="manager">Manager</option>
-            </select>
-            {errors.role && (
-              <p className="text-red-500 text-sm">Role is required</p>
-            )}
-
             {/* Password */}
             <label className="label">Password</label>
             <input
@@ -163,6 +151,11 @@ const Register = () => {
               })}
               className="input input-bordered w-full"
             />
+            {errors.password && (
+              <p className="text-red-500 text-sm">
+                Password must have 1 uppercase, 1 lowercase & 6 characters
+              </p>
+            )}
 
             <button className="btn btn-neutral mt-4 w-full">
               Register
